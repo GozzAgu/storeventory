@@ -6,24 +6,37 @@ function handleToggle() {
   $toggleDarkMode();
 }
 
-onMounted(() => {
-  console.log(isDarkMode.value)
-})
 </script>
 
 <template>
-  <div class="min-h-screen transition-colors duration-300" :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'">
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-    <div class="p-6">
-      <h1>Welcome to SwiftSort</h1>
+  <div
+    class="flex items-center justify-center min-h-screen transition-colors duration-300"
+    :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'"
+  >
+    <div class="p-8 bg-white dark:bg-gray-800 max-w-sm w-full text-center">
+      <h1 class="text-3xl font-bold mb-6 tracking-wide dark:text-gray-100">SwiftSort</h1>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+        Effortlessly organize and streamline your inventory and transactions.
+      </p>
+      <NuxtLink
+        to="auth/signin"
+        class="block w-full mb-4 py-2 text-center rounded-md"
+        style="background-color: #4c5270; color: white; border-color: #4c5270;"
+        >
+        Sign In
+      </NuxtLink>
+      <NuxtLink
+        to="auth/signup"
+        class="block w-full py-2 text-center rounded-md"
+        style="background-color: #4c5270; color: white; border-color: #4c5270;"
+        >
+        Sign Up
+      </NuxtLink>
       <Button
         :icon="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
+        class="w-full mt-4 py-2"
         @click="handleToggle"
-        severity="primary"
-        class="mt-4"
-        style="background-color: #555273; color: white; border-color: #555273;"
+        style="background-color: #4c5270; color: white; border-color: #4c5270;"
       />
     </div>
   </div>
