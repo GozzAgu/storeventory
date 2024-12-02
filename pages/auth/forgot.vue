@@ -54,7 +54,7 @@ function handleToggle() {
   >
     <div
       class="p-8 max-w-sm w-full text-center"
-      :class="isDarkMode ? 'bg-gray-800' : 'bg-white'"
+      :class="isDarkMode ? 'bg-darker-bg' : 'bg-lighter-bg'"
     >
       <h1 class="text-3xl font-bold mb-6 tracking-wide" :class="isDarkMode ? 'text-light-text' : 'text-dark-text'">
         Forgot Password

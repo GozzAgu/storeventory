@@ -7,6 +7,6 @@ definePageMeta({
 
 <template>
   <div>
-    <Dashboard />
+    <Customerlist />
   </div>
 </template>

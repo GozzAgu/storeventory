@@ -1,30 +1,3 @@
-<script setup lang="ts">
-import InputText from 'primevue/inputtext';
-import InputGroup from 'primevue/inputgroup';
-import InputGroupAddon from 'primevue/inputgroupaddon';
-import { ref } from 'vue';
-
-const isDarkMode = useState('isDarkMode');
-const isSidenavOpen = ref(true);
-
-const menuItems = [
-  { label: 'Dashboard', icon: 'pi pi-home' },
-  { label: 'Invoice', icon: 'pi pi-file' },
-  { label: 'Receipts', icon: 'pi pi-receipt' },
-  { label: 'Customers', icon: 'pi pi-users' },
-  { label: 'Staff', icon: 'pi pi-user-edit' },
-  { label: 'Settings', icon: 'pi pi-cog' },
-  { label: 'Help', icon: 'pi pi-question-circle' },
-  { label: 'Logout', icon: 'pi pi-sign-out' },
-];
-
-const userProfile = {
-  name: 'Business 1',
-  imageUrl: 'https://via.placeholder.com/150',
-};
-
-</script>
-
 <template>
   <div class="flex h-screen" :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'">
     <div
@@ -35,11 +8,13 @@ const userProfile = {
       ]"
       class="h-full shadow-lg flex flex-col"
     >
+      <!-- Sidebar Content -->
       <div class="flex items-center p-4 space-x-4">
         <img :src="userProfile.imageUrl" alt="Profile" class="w-12 h-12 rounded-full object-cover" />
         <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ userProfile.name }}</span>
       </div>
 
+      <!-- Sidebar Toggle -->
       <div class="flex items-center justify-end p-4">
         <i
           class="pi pi-chevron-left cursor-pointer"
@@ -48,19 +23,25 @@ const userProfile = {
         ></i>
       </div>
 
+      <!-- Menu Items with NuxtLink -->
       <nav class="flex flex-col space-y-4 mt-8 px-4">
-        <div
+        <NuxtLink
           v-for="item in menuItems"
           :key="item.label"
-          class="flex items-center space-x-4 p-2 rounded-md cursor-pointer hover:bg-gray-200"
-          :class="isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'"
+          :to="item.route"
+          :class="[
+            'flex items-center space-x-4 p-2 rounded-md cursor-pointer hover:bg-darker-bg hover:text-light-text',
+            { 'bg-hover-bg text-hover-text': isActive(item.route) }
+          ]"
+          exact-active-class="bg-hover-bg text-hover-text"
         >
           <i :class="item.icon" class="text-lg"></i>
           <span v-if="isSidenavOpen" class="font-medium">{{ item.label }}</span>
-        </div>
+        </NuxtLink>
       </nav>
     </div>
 
+    <!-- Main Content Area -->
     <div class="flex-1 flex flex-col">
       <div
         class="w-full h-[60px] flex items-center px-6 transition-all duration-300"
@@ -76,34 +57,57 @@ const userProfile = {
         </div>
 
         <div class="ml-auto flex items-center space-x-6">
-          <!-- Search Bar -->
-          
-
-          <div class="relative cursor-pointer hover:text-blue-500 transition-all duration-300">
+          <div class="relative cursor-pointer hover:text-darker-text transition-all duration-300">
             <i class="pi pi-bell text-lg"></i>
-            <span
-              class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex justify-center items-center"
-            >
-              3
-            </span>
+            <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex justify-center items-center">3</span>
           </div>
 
           <i
-            class="text-lg cursor-pointer hover:text-blue-500 transition-all duration-300"
+            class="text-lg cursor-pointer hover:text-darker-text transition-all duration-300"
             :class="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
             @click="isDarkMode = !isDarkMode"
           ></i>
 
-          <i class="pi pi-user text-lg cursor-pointer hover:text-blue-500 transition-all duration-300"></i>
+          <i class="pi pi-user text-lg cursor-pointer hover:text-darker-text transition-all duration-300"></i>
         </div>
       </div>
 
+      <!-- Main Content (Where route components will appear) -->
       <div class="p-6 flex-1 overflow-auto">
-        <slot />
+        <NuxtPage />
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useRoute } from 'vue-router';
+
+const isDarkMode = useState('isDarkMode');
+const isSidenavOpen = ref(true);
+const route = useRoute();  // Get the current route
+
+const menuItems = [
+  { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard/home' },
+  { label: 'Inventory', icon: 'pi pi-file', route: '/dashboard/inventorylist' },
+  { label: 'Receipts', icon: 'pi pi-receipt', route: '/dashboard/receiptlist' },
+  { label: 'Customers', icon: 'pi pi-users', route: '/dashboard/customerlist' },
+  { label: 'Staff', icon: 'pi pi-user-edit', route: '/dashboard/stafflist' },
+  { label: 'Settings', icon: 'pi pi-cog', route: '/dashboard/settings' },
+  { label: 'Help', icon: 'pi pi-question-circle', route: '/dashboard/help' },
+  { label: 'Logout', icon: 'pi pi-sign-out' },
+];
+
+// Function to check if the route is active
+const isActive = (routeToCheck: string) => {
+  return route.path === routeToCheck;  // Compare the current route with the menu item route
+};
+
+const userProfile = {
+  name: 'Business 1',
+  imageUrl: 'https://via.placeholder.com/150',
+};
+</script>
 
 <style>
 nav div:hover {
@@ -116,5 +120,13 @@ nav div:hover {
 :root {
   --hover-bg: #201F2A;
   --hover-text: #CDCFD9;
+}
+
+/* Active Link Styles */
+.bg-hover-bg {
+  background-color: var(--hover-bg);
+}
+.text-hover-text {
+  color: var(--hover-text);
 }
 </style>
