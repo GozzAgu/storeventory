@@ -13,7 +13,7 @@ function handleToggle() {
     class="flex items-center justify-center min-h-screen transition-colors duration-300"
     :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'"
   >
-    <div class="p-8 bg-white dark:bg-gray-800 max-w-sm w-full text-center">
+    <div class="p-8 max-w-sm w-full text-center" :class="isDarkMode ? 'bg-darker-bg' : 'bg-lighter-bg'">
       <h1 class="text-3xl font-bold mb-6 tracking-wide dark:text-gray-100">SwiftSort</h1>
       <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
         Effortlessly organize and streamline your inventory and transactions.

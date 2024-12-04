@@ -19,6 +19,8 @@ export default defineNuxtConfig({
   modules: ['@primevue/nuxt-module', '@nuxtjs/tailwindcss', '@pinia/nuxt'],
   plugins: [
     '~/plugins/primevue.js',
+    '~/plugins/lightdarkmode.js',
+    '~/plugins/firebaseConfig.js'
   ],
   primevue: {
     options: {
