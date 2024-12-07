@@ -17,29 +17,15 @@ export default defineNuxtPlugin(nuxtApp => {
   };
 
   const app = initializeApp(firebaseConfig)
-
   const firestore = getFirestore(app)
   const auth = getAuth(app)
-  // const storage = getStorage(app);
-
-  console.log(auth)
-
-  // const saveFile = (name, file) => {
-  //   console.log(file)
-  //   const storageRef = ref(storage, 'images/' + name)
-  //   uploadBytes(storageRef, file).then((snapshot) => {
-  //     console.log('Uploaded blob', snapshot.metadata.fullPath, storageRef, file.name)
-  //   }).catch((error) => {
-  //     console.error('Error uploading file:', error);
-  //   });
-  // }
+  const storage = getStorage(app);
 
   return {
     provide: {
       firestore,
       auth,
-      // storage,
-      // saveFile
+      storage,
     }
   }
 })

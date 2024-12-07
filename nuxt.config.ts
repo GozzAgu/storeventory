@@ -16,7 +16,7 @@ export default defineNuxtConfig({
     '@/assets/css/tailwind.css', 
     'primeicons/primeicons.css',
   ],
-  modules: ['@primevue/nuxt-module', '@nuxtjs/tailwindcss', '@pinia/nuxt'],
+  modules: ['@primevue/nuxt-module', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxt/icon'],
   plugins: [
     '~/plugins/primevue.js',
     '~/plugins/lightdarkmode.js',

@@ -1,3 +1,39 @@
+
+<script setup lang="ts">
+import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
+const isDarkMode = useState('isDarkMode');
+const isSidenavOpen = ref(true);
+const route = useRoute();  // Get the current route
+
+const menuItems = [
+  { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard/home' },
+  { label: 'Inventory', icon: 'pi pi-file', route: '/dashboard/inventorylist' },
+  { label: 'Receipts', icon: 'pi pi-receipt', route: '/dashboard/receiptlist' },
+  { label: 'Customers', icon: 'pi pi-users', route: '/dashboard/customerlist' },
+  { label: 'Staff', icon: 'pi pi-user-edit', route: '/dashboard/stafflist' },
+  { label: 'Settings', icon: 'pi pi-cog', route: '/dashboard/settings' },
+  { label: 'Help', icon: 'pi pi-question-circle', route: '/dashboard/help' },
+  { label: 'Logout', icon: 'pi pi-sign-out' },
+];
+
+// Function to check if the route is active
+const isActive = (routeToCheck: string) => {
+  return route.path === routeToCheck;  // Compare the current route with the menu item route
+};
+
+const userProfile = {
+  imageUrl: 'https://via.placeholder.com/150',
+};
+
+onMounted(() => {
+  authStore.initAuthListener()
+  console.log(authStore.currentUser?.adminName)
+})
+</script>
+
 <template>
   <div class="flex h-screen" :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'">
     <div
@@ -10,8 +46,8 @@
     >
       <!-- Sidebar Content -->
       <div class="flex items-center p-4 space-x-4">
-        <img :src="userProfile.imageUrl" alt="Profile" class="w-12 h-12 rounded-full object-cover" />
-        <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ userProfile.name }}</span>
+        <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="w-12 h-12 rounded-full object-cover" />
+        <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ authStore.currentUser?.adminName }}</span>
       </div>
 
       <!-- Sidebar Toggle -->
@@ -56,19 +92,19 @@
           <span class="text-xl font-black">SwiftSort</span>
         </div>
 
-        <div class="ml-auto flex items-center space-x-6">
-          <div class="relative cursor-pointer hover:text-darker-text transition-all duration-300">
+        <div class="ml-auto flex items-center space-x-4">
+          <div class="relative cursor-pointer hover:text-darker-text transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2">
             <i class="pi pi-bell text-lg"></i>
             <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex justify-center items-center">3</span>
           </div>
 
           <i
-            class="text-lg cursor-pointer hover:text-darker-text transition-all duration-300"
+            class="text-lg cursor-pointer hover:text-darker-text transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2"
             :class="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
             @click="isDarkMode = !isDarkMode"
           ></i>
 
-          <i class="pi pi-user text-lg cursor-pointer hover:text-darker-text transition-all duration-300"></i>
+          <i class="pi pi-user text-lg cursor-pointer transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2"></i>
         </div>
       </div>
 
@@ -79,35 +115,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { useRoute } from 'vue-router';
-
-const isDarkMode = useState('isDarkMode');
-const isSidenavOpen = ref(true);
-const route = useRoute();  // Get the current route
-
-const menuItems = [
-  { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard/home' },
-  { label: 'Inventory', icon: 'pi pi-file', route: '/dashboard/inventorylist' },
-  { label: 'Receipts', icon: 'pi pi-receipt', route: '/dashboard/receiptlist' },
-  { label: 'Customers', icon: 'pi pi-users', route: '/dashboard/customerlist' },
-  { label: 'Staff', icon: 'pi pi-user-edit', route: '/dashboard/stafflist' },
-  { label: 'Settings', icon: 'pi pi-cog', route: '/dashboard/settings' },
-  { label: 'Help', icon: 'pi pi-question-circle', route: '/dashboard/help' },
-  { label: 'Logout', icon: 'pi pi-sign-out' },
-];
-
-// Function to check if the route is active
-const isActive = (routeToCheck: string) => {
-  return route.path === routeToCheck;  // Compare the current route with the menu item route
-};
-
-const userProfile = {
-  name: 'Business 1',
-  imageUrl: 'https://via.placeholder.com/150',
-};
-</script>
 
 <style>
 nav div:hover {

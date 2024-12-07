@@ -1,10 +1,13 @@
 <script lang="ts" setup>
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import { useAuthStore } from '@/stores/auth';
+import { AccountType } from '@/types/auth';
+
 const { $toggleDarkMode } = useNuxtApp();
 const isDarkMode = useState('isDarkMode');
-
+const authStore = useAuthStore();
 const form = reactive({
   name: '',
   email: '',
@@ -14,9 +17,10 @@ const form = reactive({
 
 const router = useRouter();
 const toast = useToast();
+const loading = ref(false);
 
-function handleSignIn() {
-  if (!form.email || !form.password) {
+async function handleSignUp() {
+  if (!form.name || !form.email || !form.password || !form.confirmPassword) {
     toast.add({
       severity: 'warn',
       summary: 'Validation Error',
@@ -26,21 +30,37 @@ function handleSignIn() {
     return;
   }
 
-  if (form.email === 'user@example.com' && form.password === 'password') {
+  if (form.password !== form.confirmPassword) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Validation Error',
+      detail: 'Passwords do not match',
+      life: 3000,
+    });
+    return;
+  }
+
+  loading.value = true;
+  try {
+    await authStore.signupAdmin(form.email, form.password, AccountType.superAdmin, form.name);
     toast.add({
       severity: 'success',
-      summary: 'Sign In Successful',
-      detail: 'Welcome back!',
+      summary: 'Sign Up Successful',
+      detail: 'Account created successfully!',
       life: 3000,
     });
-    router.push('/dashboard');
-  } else {
+    router.push('/dashboard/home');
+  } catch (error: any) {
+    const errorMessage = error?.message || 'An unexpected error occurred';
     toast.add({
       severity: 'error',
-      summary: 'Sign In Failed',
-      detail: 'Invalid email or password',
+      summary: 'Sign Up Failed',
+      detail: errorMessage,
       life: 3000,
     });
+  }
+ finally {
+    loading.value = false;
   }
 }
 
@@ -120,11 +140,13 @@ function handleToggle() {
         />
       </div>
       <button
-        @click="handleSignIn"
-        class="w-full py-2 rounded-md shadow-md mb-4 transition-all duration-300"
+        @click="handleSignUp"
+        class="w-full py-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
+        :disabled="loading"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
       >
-        Sign Up
+        <Icon v-if="loading" name="svg-spinners:ring-resize" />
+        <span>{{ loading ? 'Signing Up...' : 'Sign Up' }}</span>
       </button>
       <p class="text-sm mb-6" :class="isDarkMode ? 'text-gray-400' : 'text-gray-600'">
         Already have an account?

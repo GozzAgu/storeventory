@@ -1,12 +1,14 @@
 <template>
   <div :class="{ dark: isDarkMode }" class="min-h-screen transition-colors duration-300">
     <NuxtLayout>
+      <Toast />
       <NuxtPage />
     </NuxtLayout>
   </div>
 </template>
 
 <script setup>
+import Toast from 'primevue/toast';
 const isDarkMode = useState('isDarkMode');
 
 onMounted(() => {

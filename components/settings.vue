@@ -1,13 +1,48 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { doc, setDoc } from 'firebase/firestore';
+import { useState } from '#imports';
+import { useAuthStore } from '@/stores/auth';
 
+const authStore = useAuthStore();
 const username = ref('');
-const email = ref('');
-const password = ref('');
 const isDarkMode = useState('isDarkMode');
 const emailNotifications = ref(true);
 const pushNotifications = ref(false);
-const language = ref('en');
+const imageURL = ref<string>('');
+const nuxtApp = useNuxtApp()
+
+// Firebase Storage instance
+const storage = getStorage();
+
+// Function to handle image upload
+const handleImageUpload = async (event: Event) => {
+  const fileInput = event.target as HTMLInputElement;
+  const file = fileInput?.files?.[0];  // Get the first selected file
+
+  if (file) {
+    try {
+      const imageRef = storageRef(storage, `profile_images/${file.name}`);
+
+      // Step 2: Upload the file to Firebase Storage
+      await uploadBytes(imageRef, file);  // Upload the file
+
+      // Step 3: Get the file's download URL after upload
+      const url = await getDownloadURL(imageRef);
+
+      await setDoc(doc(nuxtApp.$firestore, 'users', authStore.currentUser?.uid || ''), {
+        imageUrl: url
+      }, { merge: true });
+      
+      // Save the image URL to display or store in the database
+      imageURL.value = url;
+      console.log('Image uploaded successfully:', url);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  }
+};
 
 const updateProfile = () => {
   console.log('Profile updated');
@@ -20,6 +55,7 @@ const saveNotifications = () => {
 
 <template>
   <div class="space-y-8 p-6 max-w-4xl mx-auto">
+    <!-- Profile Settings Form -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-2xl font-semibold mb-4">Profile Settings</h2>
       <form @submit.prevent="updateProfile">
@@ -28,35 +64,28 @@ const saveNotifications = () => {
             <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
             <input
               v-model="username"
-              type="username"
+              type="text"
               id="username"
               placeholder="Enter username"
               class="w-full px-4 py-2 border rounded-md"
               :class="isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text'"
             />
           </div>
+
+          <!-- Image Upload Section -->
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+            <label for="profileImage" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Image</label>
             <input
-              v-model="email"
-              type="email"
-              id="email"
-              placeholder="Enter email"
+              type="file"
+              id="profileImage"
+              @change="handleImageUpload"
               class="w-full px-4 py-2 border rounded-md"
-              :class="isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text'"
             />
+            <p v-if="imageURL" class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+              Image uploaded: <img :src="imageURL" alt="Profile Image" class="w-32 h-32 rounded-full" />
+            </p>
           </div>
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-            <input
-              v-model="password"
-              type="password"
-              id="password"
-              placeholder="Enter password"
-              class="w-full px-4 py-2 border rounded-md"
-              :class="isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text'"
-            />
-          </div>
+
           <div class="flex justify-end">
             <button
               class="py-2 px-4 rounded-md mb-4 transition-all duration-300"
@@ -69,6 +98,7 @@ const saveNotifications = () => {
       </form>
     </div>
 
+    <!-- Notification Preferences Form -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-2xl font-semibold mb-4">Notification Preferences</h2>
       <form @submit.prevent="saveNotifications">
