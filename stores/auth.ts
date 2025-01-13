@@ -81,6 +81,7 @@ export const useAuthStore = defineStore('users', {
       const storedUser = localStorage.getItem('currentUser');
       if (storedUser) {
         this.currentUser = JSON.parse(storedUser);
+        this.profileImageUrl = this.currentUser.imageUrl || '';
       } else if (this.currentUser?.id) {
         this.fetchCurrentUser(this.currentUser.id); // Fetch from Firestore if not in storage
       }
@@ -129,6 +130,8 @@ export const useAuthStore = defineStore('users', {
 
     updateProfileImageUrl(url: string) {
       if (this.currentUser) {
+        this.currentUser.imageUrl = url;
+        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         this.profileImageUrl = url;
       }
     },

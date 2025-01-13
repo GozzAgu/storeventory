@@ -16,33 +16,36 @@ const nuxtApp = useNuxtApp()
 // Firebase Storage instance
 const storage = getStorage();
 
-// Function to handle image upload
 const handleImageUpload = async (event: Event) => {
   const fileInput = event.target as HTMLInputElement;
-  const file = fileInput?.files?.[0];  // Get the first selected file
+  const file = fileInput?.files?.[0]; // Get the first selected file
 
   if (file) {
     try {
-      const imageRef = storageRef(storage, `profile_images/${file.name}`);
+      const imageRef = storageRef(storage, `profile_images/${authStore.currentUser?.id}/${file.name}`);
 
-      // Step 2: Upload the file to Firebase Storage
-      await uploadBytes(imageRef, file);  // Upload the file
+      // Upload the file to Firebase Storage
+      await uploadBytes(imageRef, file);
 
-      // Step 3: Get the file's download URL after upload
+      // Get the file's download URL after upload
       const url = await getDownloadURL(imageRef);
 
-      await setDoc(doc(nuxtApp.$firestore, 'users', authStore.currentUser?.uid || ''), {
-        imageUrl: url
-      }, { merge: true });
-      
-      // Save the image URL to display or store in the database
+      // Save the URL in Firestore under the current user's document
+      const userDocRef = doc(nuxtApp.$firestore, 'users', authStore.currentUser?.id || '');
+      await setDoc(userDocRef, { imageUrl: url }, { merge: true });
+
+      // Update the imageURL in the store
+      authStore.updateProfileImageUrl(url);
+
+      // Save the image URL locally to display in the UI
       imageURL.value = url;
-      console.log('Image uploaded successfully:', url);
+      console.log('Image uploaded and stored successfully:', url);
     } catch (error) {
       console.error('Error uploading image:', error);
     }
   }
 };
+
 
 const updateProfile = () => {
   console.log('Profile updated');
