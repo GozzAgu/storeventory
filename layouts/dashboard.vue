@@ -19,19 +19,16 @@ const menuItems = [
   { label: 'Logout', icon: 'pi pi-sign-out' },
 ];
 
-// Function to check if the route is active
 const isActive = (routeToCheck: string) => {
-  return route.path === routeToCheck;  // Compare the current route with the menu item route
-};
-
-const userProfile = {
-  imageUrl: 'https://via.placeholder.com/150',
+  return route.path === routeToCheck;
 };
 
 onMounted(() => {
-  authStore.initAuthListener()
-  console.log(authStore.currentUser?.adminName)
-})
+  if (authStore.currentUser?.id) {
+    authStore.fetchCurrentUser(authStore.currentUser.id);
+    console.log(authStore.currentUser?.adminName);
+  }
+});
 </script>
 
 <template>

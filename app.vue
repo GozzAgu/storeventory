@@ -9,9 +9,12 @@
 
 <script setup>
 import Toast from 'primevue/toast';
+
 const isDarkMode = useState('isDarkMode');
+const store = useAuthStore()
 
 onMounted(() => {
+	store.loadCurrentUserFromStorage()
   const savedDarkMode = localStorage.getItem('isDarkMode') === 'true';
   isDarkMode.value = savedDarkMode;
 

@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useAuthStore } from '@/stores/auth';
+import { AccountType } from '~/types/auth';
 
 const { $toggleDarkMode } = useNuxtApp();
 const isDarkMode = useState('isDarkMode');
@@ -39,14 +40,20 @@ async function handleSignIn() {
 
   loading.value = true;
   try {
-    await authStore.loginUser(form.email, form.password);
+    await authStore.loginUser(form.email, form.password, AccountType.superAdmin);
     toast.add({
       severity: 'success',
       summary: 'Sign In Successful',
       detail: 'Welcome back!',
       life: 3000,
     });
-    router.push('/dashboard/home');
+    if (authStore.currentUser?.accountType === AccountType.admin) {
+      router.push('/dashboard/home');
+    } else if (authStore.currentUser?.accountType === AccountType.superAdmin) {
+      router.push('/dashboard/home');
+    } else {
+      router.push('/dashboard/home');
+    }
   } catch (error: any) {
     const errorMessage = error?.message || 'An unexpected error occurred';
     toast.add({

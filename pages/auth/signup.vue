@@ -4,12 +4,14 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useAuthStore } from '@/stores/auth';
 import { AccountType } from '@/types/auth';
+import { doc, setDoc } from "firebase/firestore"; 
 
+const nuxtApp = useNuxtApp()
 const { $toggleDarkMode } = useNuxtApp();
 const isDarkMode = useState('isDarkMode');
 const authStore = useAuthStore();
 const form = reactive({
-  name: '',
+  adminName: '',
   email: '',
   password: '',
   confirmPassword: ''
@@ -19,8 +21,13 @@ const router = useRouter();
 const toast = useToast();
 const loading = ref(false);
 
+const setUserAccountType = async (userId: string, form: any) => {
+  const userDocRef = doc(nuxtApp.$firestore, 'users', userId)
+  await setDoc(userDocRef, { ...form, accountType: AccountType.superAdmin, id:userId }, { merge: true })
+}
+
 async function handleSignUp() {
-  if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+  if (!form.adminName || !form.email || !form.password || !form.confirmPassword) {
     toast.add({
       severity: 'warn',
       summary: 'Validation Error',
@@ -42,14 +49,23 @@ async function handleSignUp() {
 
   loading.value = true;
   try {
-    await authStore.signupAdmin(form.email, form.password, AccountType.superAdmin, form.name);
-    toast.add({
-      severity: 'success',
-      summary: 'Sign Up Successful',
-      detail: 'Account created successfully!',
-      life: 3000,
-    });
-    router.push('/dashboard/home');
+  const response = await authStore.signupAdmin(
+    form.email, 
+    form.password, 
+    AccountType.superAdmin, 
+    form.adminName
+  );
+
+  await setUserAccountType(response.user.uid, form);
+
+  toast.add({
+    severity: 'success',
+    summary: 'Sign Up Successful',
+    detail: 'Account created successfully!',
+    life: 3000,
+  });
+
+  router.push('/dashboard/home');
   } catch (error: any) {
     const errorMessage = error?.message || 'An unexpected error occurred';
     toast.add({
@@ -58,8 +74,7 @@ async function handleSignUp() {
       detail: errorMessage,
       life: 3000,
     });
-  }
- finally {
+  } finally {
     loading.value = false;
   }
 }
@@ -89,7 +104,7 @@ function handleToggle() {
           Name
         </label>
         <input
-          v-model="form.name"
+          v-model="form.adminName"
           type="text"
           id="name"
           placeholder="Enter name"
