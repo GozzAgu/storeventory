@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('users', {
       adminId?: string;
     },
     profileImageUrl: '',
+    staffList: [],
   }),
 
   actions: {
@@ -28,43 +29,6 @@ export const useAuthStore = defineStore('users', {
       }
       return response
     },
-
-    // async signupStaff(email: string, password: string, accountType: AccountType) {
-    //   const nuxtApp = useNuxtApp();
-    //   try {
-    //     if (!this.currentUser || this.currentUser.accountType !== AccountType.admin) {
-    //       throw new Error('Only admins can create staff accounts.');
-    //     }
-    
-    //     const adminId = this.currentUser.id; // Use current user's UID
-    //     const adminAccountType = this.currentUser.accountType; // Use current user's account type
-    
-    //     const userCredential = await createUserWithEmailAndPassword(nuxtApp.$auth, email, password);
-    //     const user = userCredential.user;
-    
-    //     const userRef = doc(nuxtApp.$firestore, 'users', user.uid);
-    
-    //     await setDoc(userRef, {
-    //       email,
-    //       accountType,
-    //       adminId, // Reference the admin who created this account
-    //       createdAt: new Date(),
-    //     });
-    
-    //     this.currentUser = {
-    //       ...user,
-    //       accountType,
-    //       adminId,
-    //       password,
-    //       id: user.uid,
-    //     };
-    
-    //     return user;
-    //   } catch (error) {
-    //     console.error('Error creating staff user:', error);
-    //     throw error;
-    //   }
-    // },
 
     async loginUser(email: string, password: string, accountType: AccountType) {
       const nuxtApp = useNuxtApp()
@@ -83,7 +47,7 @@ export const useAuthStore = defineStore('users', {
         this.currentUser = JSON.parse(storedUser);
         this.profileImageUrl = this.currentUser.imageUrl || '';
       } else if (this.currentUser?.id) {
-        this.fetchCurrentUser(this.currentUser.id); // Fetch from Firestore if not in storage
+        this.fetchCurrentUser(this.currentUser.id);
       }
     },
 
@@ -110,23 +74,6 @@ export const useAuthStore = defineStore('users', {
         router.push('/auth/signin')
       }
     },
-
-    // initAuthListener() {
-    //   const nuxtApp = useNuxtApp();
-    //   const auth = nuxtApp.$auth;
-    //   auth.onAuthStateChanged(async (user) => {
-    //     if (user) {
-    //       const userRef = doc(nuxtApp.$firestore, 'users', user.uid);
-    //       const userDoc = await getDoc(userRef);
-  
-    //       if (userDoc.exists()) {
-    //         this.currentUser = { ...user, ...userDoc.data() } as typeof this.currentUser;
-    //       }
-    //     } else {
-    //       this.currentUser = null;
-    //     }
-    //   });
-    // },
 
     updateProfileImageUrl(url: string) {
       if (this.currentUser) {

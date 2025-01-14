@@ -12,32 +12,19 @@ const emailNotifications = ref(true);
 const pushNotifications = ref(false);
 const imageURL = ref<string>('');
 const nuxtApp = useNuxtApp()
-
-// Firebase Storage instance
 const storage = getStorage();
 
 const handleImageUpload = async (event: Event) => {
   const fileInput = event.target as HTMLInputElement;
-  const file = fileInput?.files?.[0]; // Get the first selected file
-
+  const file = fileInput?.files?.[0];
   if (file) {
     try {
       const imageRef = storageRef(storage, `profile_images/${authStore.currentUser?.id}/${file.name}`);
-
-      // Upload the file to Firebase Storage
       await uploadBytes(imageRef, file);
-
-      // Get the file's download URL after upload
       const url = await getDownloadURL(imageRef);
-
-      // Save the URL in Firestore under the current user's document
       const userDocRef = doc(nuxtApp.$firestore, 'users', authStore.currentUser?.id || '');
       await setDoc(userDocRef, { imageUrl: url }, { merge: true });
-
-      // Update the imageURL in the store
       authStore.updateProfileImageUrl(url);
-
-      // Save the image URL locally to display in the UI
       imageURL.value = url;
       console.log('Image uploaded and stored successfully:', url);
     } catch (error) {
@@ -45,7 +32,6 @@ const handleImageUpload = async (event: Event) => {
     }
   }
 };
-
 
 const updateProfile = () => {
   console.log('Profile updated');

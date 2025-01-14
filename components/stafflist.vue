@@ -1,103 +1,132 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import Drawer from 'primevue/drawer';
+import { setDoc, doc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
+import { AccountType } from '~/types/auth';
 
 const toast = useToast();
-// Sample data for staff
-const staffList = ref([
-  { id: 'STAFF001', name: 'John Doe', email: '', position: 'Manager', department: 'Sales' },
-  { id: 'STAFF002', name: 'Jane Smith', email: '', position: 'Developer', department: 'IT' },
-  { id: 'STAFF003', name: 'Samuel Lee', email: '', position: 'Designer', department: 'Marketing' },
-]);
 
-// New staff data
+const authStore = useAuthStore();
 const newStaff = ref({
   name: '',
   email: '',
+  password: '',
   position: '',
   department: '',
+  adminId: '',
+  // role: AccountType.user,
 });
 
-// Drawer visibility state
 const addDrawerVisible = ref(false);
 const editDrawerVisible = ref(false);
-
-// Dark mode state (you can replace this with your actual dark mode handling)
+const nuxtApp = useNuxtApp()
 const isDarkMode = useState('isDarkMode');
-
-// Edit mode state
 const editMode = ref(true);
 
-// Method to open the drawer
 const openCreateStaffDrawer = () => {
-  newStaff.value = { name: '', email: '', position: '', department: '' }; // Reset form fields
+  newStaff.value = { name: '', email: '', password: '', position: '', department: '', adminId: ''};
   addDrawerVisible.value = true;
+  editDrawerVisible.value = false;
 };
 
-// Method to close the drawer
 const closeCreateStaffDrawer = () => {
   addDrawerVisible.value = false;
   editDrawerVisible.value = false;
 };
 
-// Method to close the drawer
 const closeEditStaffDrawer = () => {
-  newStaff.value = { name: '', email: '', position: '', department: '' }; // Reset form fields
+  newStaff.value = { name: '', email: '', password: '', position: '', department: '', adminId: ''};
   editDrawerVisible.value =false;
   addDrawerVisible.value = false;
   editMode.value = true;
 }
 
-// Computed property for background color based on dark mode
 const drawerBackgroundColor = computed(() => {
-  return isDarkMode.value ? '#201F2A' : '#E3E4EB'; // Adjust colors as needed
+  return isDarkMode.value ? '#201F2A' : '#E3E4EB';
 });
 
-// Method to add staff
-const addStaff = () => {
-  if (newStaff.value.name && newStaff.value.email) {
-    // Check if the staff member already exists based on a unique identifier (e.g., email)
-    const isDuplicate = staffList.value.some(
-      (staff) => staff.email === newStaff.value.email
-    );
+const setUserAccountType = async (staffUid: string, staff: any) => {
+  if (!authStore.currentUser) {
+    throw new Error('Admin user is not authenticated.');
+  }
 
-    if (isDuplicate) {
-      toast.add({ severity: 'warn', summary: 'Duplicate Entry', detail: 'A staff member with this email already exists.' });
-    } else {
-      staffList.value.push({
-        ...newStaff.value,
-        id: `STAFF${(staffList.value.length + 1).toString().padStart(3, '0')}`,
-      });
+  const adminId = authStore.currentUser.id;
+  newStaff.value.adminId = adminId;
+
+  const userDocRef = doc(nuxtApp.$firestore, 'users', staffUid);
+
+  const plainStaffData = {
+    name: staff.value.name,
+    email: staff.value.email,
+    position: staff.value.position,
+    department: staff.value.department,
+    role: AccountType.user,
+    adminId, // Assign adminId correctly here
+  };
+
+  await setDoc(userDocRef, plainStaffData, { merge: true });
+  console.log('User document created successfully:', userDocRef.firestore);
+};
+
+const isAddingStaff = ref(false)
+
+const addStaff = async () => {
+  if (newStaff.value.name && newStaff.value.email && newStaff.value.password) {
+    try {
+      isAddingStaff.value = true;
+
+      const response = await createUserWithEmailAndPassword(
+        nuxtApp.$auth,
+        newStaff.value.email,
+        newStaff.value.password
+      );
+
+      console.log('New staff account created:', response);
+
+      await setUserAccountType(response.user.uid, newStaff);
+
+      if (response) {
+        await signOut(nuxtApp.$auth);
+        await signInWithEmailAndPassword(
+          nuxtApp.$auth,
+          authStore.currentUser!.email!,
+          authStore.currentUser!.password
+        );
+      }
+
       toast.add({ severity: 'success', summary: 'Staff Added', detail: 'The new staff member has been added.' });
       closeCreateStaffDrawer();
+    } catch (e) {
+      console.error('Error adding staff:', e);
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to add staff.' });
+    } finally {
+      isAddingStaff.value = false;
     }
   } else {
     toast.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields.' });
   }
 };
 
-// Method to view staff details
-const viewStaffDetails = (staffId: string) => {
-  // Find the staff member by ID
-  const staffToEdit = staffList.value.find(staff => staff.id === staffId);
+onMounted(() => {
+  authStore.loadCurrentUserFromStorage()
+})
+// const viewStaffDetails = (staffId: string) => {
+//   const staffToEdit = staffList.value.find(staff => staff.id === staffId);
   
-  if (staffToEdit) {
-    // Set the newStaff data with the selected staff details
-    newStaff.value = { ...staffToEdit };
-    // Open the edit drawer
-    editDrawerVisible.value = true;
-  }
-};
+//   if (staffToEdit) {
+//     newStaff.value = { ...staffToEdit };
+//     editDrawerVisible.value = true;
+//   }
+// };
 
-// Method to edit staff details
-const editStaffDetails = (staffId: string) => {
-  console.log(`Edit details for staff ID: ${staffId}`);
-};
+// const editStaffDetails = (staffId: string) => {
+//   console.log(`Edit details for staff ID: ${staffId}`);
+// };
 
-// Method to delete a staff member
-const deleteStaff = (staffId: string) => {
-  staffList.value = staffList.value.filter(staff => staff.id !== staffId);
-};
+// const deleteStaff = (staffId: string) => {
+//   staffList.value = staffList.value.filter(staff => staff.id !== staffId);
+// };
 </script>
 
 <template>
@@ -122,23 +151,22 @@ const deleteStaff = (staffId: string) => {
     <!-- Staff Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
       <!-- Loop through staff members -->
-      <div v-for="(staff, index) in staffList" :key="index" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
+      <div v-for="staff in authStore.staffList" :key="staff" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
         <div class="p-4">
-          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
+          <!-- <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">{{ staff.position }}</p>
-          <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">{{ staff.department }}</p>
+          <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">{{ staff.department }}</p> -->
 
-          <!-- Staff Actions -->
-          <div class="mt-4 flex justify-between items-center">
+          <!-- <div class="mt-4 flex justify-between items-center">
             <button @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600">View & Edit</button>
             <button @click="deleteStaff(staff.id)" class="text-red-500 hover:text-red-600">Delete</button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
 
     <!-- No Staff Message -->
-    <div v-if="staffList.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
+    <div v-if="authStore.staffList.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
       <p class="text-gray-600 dark:text-gray-400">No staff members added yet.</p>
     </div>
 
@@ -168,6 +196,20 @@ const deleteStaff = (staffId: string) => {
           type="text" 
           class="w-full p-2 border border-gray-300 rounded-md" 
           placeholder="Enter staff email" required
+          :class="[
+            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+          ]"
+           />
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Password</label>
+          <input 
+          id="name" 
+          v-model="newStaff.password" 
+          type="password" 
+          class="w-full p-2 border border-gray-300 rounded-md" 
+          placeholder="Enter password" required
           :class="[
             isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
           ]"
@@ -206,11 +248,11 @@ const deleteStaff = (staffId: string) => {
           <button type="button" @click="closeCreateStaffDrawer" class="text-gray-500 hover:text-gray-600 -mt-2">Cancel</button>
           <button
             type="submit"
-            @click="addStaff"
+            :disabled="isAddingStaff"
             class="p-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
           >
-            Add Staff
+            {{ isAddingStaff ? 'Adding...' : 'Add Staff' }}
           </button>
         </div>
       </form>
