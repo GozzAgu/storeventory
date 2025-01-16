@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import Drawer from 'primevue/drawer';
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc, deleteDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
 import { AccountType } from '~/types/auth';
 
 const toast = useToast();
-
+const deleteDialogVisible = ref(false);
 const authStore = useAuthStore();
 const newStaff = ref({
   name: '',
@@ -16,6 +16,52 @@ const newStaff = ref({
   department: '',
   adminId: '',
 });
+const itemToDelete = ref<string | null>(null);
+
+const dialogBackgroundColor = computed(() =>
+  isDarkMode.value ? '#201F2A' : '#FFFFFF'
+);
+
+const openDeleteDialog = (staffId: any) => {
+  itemToDelete.value = staffId;
+  deleteDialogVisible.value = true;
+};
+
+const closeDeleteDialog = () => {
+  deleteDialogVisible.value = false;
+  itemToDelete.value = { name: '', id: '' };
+};
+
+const confirmDelete = async () => {
+  if (!itemToDelete.value.id) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "No staff member selected for deletion.",
+    });
+    return;
+  }
+
+  try {
+    await deleteStaff(itemToDelete.value);
+
+    // Close the delete dialog after successful deletion
+    closeDeleteDialog();
+
+    toast.add({
+      severity: "success",
+      summary: "Deleted",
+      detail: `${itemToDelete.value.name} has been successfully deleted.`,
+    });
+  } catch (error) {
+    console.error("Failed to delete item:", error);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: `Failed to delete staff: ${error.message}`,
+    });
+  }
+};
 
 const addDrawerVisible = ref(false);
 const editDrawerVisible = ref(false);
@@ -60,7 +106,7 @@ const setUserAccountType = async (staffUid: string, staff: any) => {
     email: staff.value.email,
     position: staff.value.position,
     department: staff.value.department,
-    role: AccountType.user,
+    accountType: AccountType.user,
     adminName: authStore.currentUser.adminName,
     imageUrl: authStore.currentUser.imageUrl,
     adminId, // Assign adminId correctly here
@@ -110,28 +156,125 @@ const addStaff = async () => {
 };
 
 onMounted(() => {
+  console.log(authStore.staffList)
   authStore.loadCurrentUserFromStorage()
+  if(authStore.currentUser.accountType === 'SuperAdmin') {
+    authStore.fetchManagers()
+  }
+
+  // if(paginatedManagers) {
+  //   loading.value = false
+  // }
 })
-// const viewStaffDetails = (staffId: string) => {
-//   const staffToEdit = staffList.value.find(staff => staff.id === staffId);
+
+const viewStaffDetails = (staffId: string) => {
+  const staffToEdit = authStore.staffList.find(staff => staff.id === staffId);
   
-//   if (staffToEdit) {
-//     newStaff.value = { ...staffToEdit };
-//     editDrawerVisible.value = true;
-//   }
-// };
+  if (staffToEdit) {
+    newStaff.value = { ...staffToEdit };
+    editDrawerVisible.value = true;
+  }
+};
 
-// const editStaffDetails = (staffId: string) => {
-//   console.log(`Edit details for staff ID: ${staffId}`);
-// };
+const editStaffDetails = (staffId: string) => {
+  console.log(`Edit details for staff ID: ${staffId}`);
+};
 
-// const deleteStaff = (staffId: string) => {
-//   staffList.value = staffList.value.filter(staff => staff.id !== staffId);
-// };
+const deleteStaff = async (staffId: string) => {
+  try {
+    if (!staffId) {
+      throw new Error("Staff ID is required for deletion.");
+    }
+    const staffDocRef = doc(nuxtApp.$firestore, "users", staffId);
+
+    await deleteDoc(staffDocRef);
+
+    toast.add({
+      severity: "success",
+      summary: "Staff Deleted",
+      detail: `The staff member with ID ${staffId} has been successfully deleted.`,
+    });
+
+    // Optionally, update your local staff list
+    authStore.staffList = authStore.staffList.filter((staff) => staff.id !== staffId);
+  } catch (error) {
+    console.error("Error deleting staff:", error);
+
+    // Notify failure
+    toast.add({
+      severity: "error",
+      summary: "Deletion Failed",
+      detail: `Could not delete staff member. Error: ${error.message}`,
+    });
+  }
+};
 </script>
 
 <template>
   <div class="space-y-8 p-6 max-w-6xl mx-auto">
+    <Dialog 
+      v-model:visible="deleteDialogVisible" 
+      :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
+      :modal="true"
+      :closable="false"
+      :draggable="false"
+      class="custom-dialog"
+    >
+      <template #header>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Confirm Deletion</h3>
+      </template>
+
+      <p class="text-gray-600 dark:text-gray-400 mt-4">
+        Are you sure you want to delete <span class="font-semibold">{{ itemToDelete.name }}</span>?
+        This action cannot be undone.
+      </p>
+
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
+          @click="closeDeleteDialog"
+        >
+          Cancel
+        </button>
+        <button
+          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all"
+          @click="confirmDelete"
+        >
+          Delete
+        </button>
+      </div>
+    </Dialog><Dialog 
+      v-model:visible="deleteDialogVisible" 
+      :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
+      :modal="true"
+      :closable="false"
+      :draggable="false"
+      class="custom-dialog"
+    >
+      <template #header>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Confirm Deletion</h3>
+      </template>
+
+      <p class="text-gray-600 dark:text-gray-400 mt-4">
+        Are you sure you want to delete <span class="font-semibold">{{ itemToDelete.name }}</span>?
+        This action cannot be undone.
+      </p>
+
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
+          @click="closeDeleteDialog"
+        >
+          Cancel
+        </button>
+        <button
+          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all"
+          @click="confirmDelete"
+        >
+          Delete
+        </button>
+      </div>
+    </Dialog>
     <!-- Staff List Header -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-2xl font-semibold">Staff List</h2>
@@ -154,14 +297,19 @@ onMounted(() => {
       <!-- Loop through staff members -->
       <div v-for="staff in authStore.staffList" :key="staff" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
         <div class="p-4">
-          <!-- <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">{{ staff.position }}</p>
-          <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">{{ staff.department }}</p> -->
+          <div class="border-b border-gray-800 pb-2 flex justify-between">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
+            <i v-if="staff.accountType == 'User'" class="pi pi-lock text-gray-600"></i>
+            <i v-if="staff.accountType == 'Admin'" class="pi pi-lock-open text-green-600"></i>
+          </div>
+          <p class="text-sm text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
+          <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">Department: {{ staff.department }}</p>
+          <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">Role: {{ staff.accountType }}</p>
 
-          <!-- <div class="mt-4 flex justify-between items-center">
-            <button @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600">View & Edit</button>
-            <button @click="deleteStaff(staff.id)" class="text-red-500 hover:text-red-600">Delete</button>
-          </div> -->
+          <div class="mt-4 flex justify-between items-center">
+            <button @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600 text-sm">View & Edit</button>
+            <button @click="openDeleteDialog(staff.id)" class="text-red-500 hover:text-red-600 text-sm">Delete</button>
+          </div>
         </div>
       </div>
     </div>

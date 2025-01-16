@@ -75,14 +75,9 @@ export const useAuthStore = defineStore('users', {
         this.staffList = [];
         UsersSnapshot.forEach((doc) => {
           let userData = doc.data();
-          console.log(userData.adminId, this.currentUser?.id);
           userData.id = doc.id;
-          if ((userData.accountType === 'manager' || userData.accountType === 'midAdmin') && userData.adminId) {
-            if (userData.adminId === this.currentUser?.id) {
-              this.staffList.unshift(userData);
-            }
-          } else if (!userData.adminId) {
-            console.log('no admin id');
+          if (userData.adminId === this.currentUser?.id) {
+            this.staffList.unshift(userData);
           }
         });
       });
