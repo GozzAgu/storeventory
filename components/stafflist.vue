@@ -15,7 +15,6 @@ const newStaff = ref({
   position: '',
   department: '',
   adminId: '',
-  // role: AccountType.user,
 });
 
 const addDrawerVisible = ref(false);
@@ -62,6 +61,8 @@ const setUserAccountType = async (staffUid: string, staff: any) => {
     position: staff.value.position,
     department: staff.value.department,
     role: AccountType.user,
+    adminName: authStore.currentUser.adminName,
+    imageUrl: authStore.currentUser.imageUrl,
     adminId, // Assign adminId correctly here
   };
 

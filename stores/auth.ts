@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from '@firebase/auth';
-import { doc, setDoc, getDoc } from '@firebase/firestore';
+import { doc, setDoc, getDoc, collection, onSnapshot } from '@firebase/firestore';
 import type { User } from 'firebase/auth';
 import { AccountType } from '@/types/auth';
 
@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('users', {
       const storedUser = localStorage.getItem('currentUser');
       if (storedUser) {
         this.currentUser = JSON.parse(storedUser);
-        this.profileImageUrl = this.currentUser.imageUrl || '';
+        this.profileImageUrl = this.currentUser?.imageUrl || '';
       } else if (this.currentUser?.id) {
         this.fetchCurrentUser(this.currentUser.id);
       }
@@ -67,6 +67,26 @@ export const useAuthStore = defineStore('users', {
         console.log(error)
       }
     },
+
+    fetchManagers() {
+      const nuxtApp = useNuxtApp();
+      const querySnapshot = collection(nuxtApp.$firestore, "users");
+      onSnapshot(querySnapshot, (UsersSnapshot) => {
+        this.staffList = [];
+        UsersSnapshot.forEach((doc) => {
+          let userData = doc.data();
+          console.log(userData.adminId, this.currentUser?.id);
+          userData.id = doc.id;
+          if ((userData.accountType === 'manager' || userData.accountType === 'midAdmin') && userData.adminId) {
+            if (userData.adminId === this.currentUser?.id) {
+              this.staffList.unshift(userData);
+            }
+          } else if (!userData.adminId) {
+            console.log('no admin id');
+          }
+        });
+      });
+    },    
 
     authenticated() {
       const router = useRouter()
