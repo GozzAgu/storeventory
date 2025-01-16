@@ -109,7 +109,7 @@ const setUserAccountType = async (staffUid: string, staff: any) => {
     accountType: AccountType.user,
     adminName: authStore.currentUser.adminName,
     imageUrl: authStore.currentUser.imageUrl,
-    adminId, // Assign adminId correctly here
+    adminId,
   };
 
   await setDoc(userDocRef, plainStaffData, { merge: true });
@@ -211,7 +211,7 @@ const deleteStaff = async (staffId: string) => {
 </script>
 
 <template>
-  <div class="space-y-8 p-6 max-w-6xl mx-auto">
+  <div class="space-y-8 p-6 max-w-8xl mx-auto">
     <Dialog 
       v-model:visible="deleteDialogVisible" 
       :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
@@ -293,7 +293,7 @@ const deleteStaff = async (staffId: string) => {
     </div>
 
     <!-- Staff Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
       <!-- Loop through staff members -->
       <div v-for="staff in authStore.staffList" :key="staff" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
         <div class="p-4">

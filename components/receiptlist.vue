@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-8 p-6 max-w-6xl mx-auto">
+  <div class="space-y-8 p-6 max-w-8xl mx-auto">
     <!-- Receipts List Header -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-2xl font-semibold">Receipts List</h2>

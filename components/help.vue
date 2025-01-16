@@ -15,7 +15,7 @@ const submitQuestion = () => {
 </script>
 
 <template>
-  <div class="space-y-8 p-6 max-w-4xl mx-auto">
+  <div class="space-y-8 p-6 max-w-8xl mx-auto">
     <!-- Help Overview -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-2xl font-semibold mb-4">Help & Support</h2>
