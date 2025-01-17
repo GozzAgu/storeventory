@@ -43,7 +43,7 @@ onMounted(() => {
     >
       <!-- Sidebar Content -->
       <div class="flex items-center p-4 space-x-4">
-        <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="w-12 h-12 rounded-full object-cover" />
+        <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
         <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ authStore.currentUser?.adminName }}</span>
       </div>
 
