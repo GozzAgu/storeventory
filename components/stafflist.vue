@@ -5,9 +5,16 @@ import { setDoc, doc, deleteDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
 import { AccountType } from '~/types/auth';
 
+const addDrawerVisible = ref(false);
+const editDrawerVisible = ref(false);
+const nuxtApp = useNuxtApp()
+const isDarkMode = useState('isDarkMode');
+const editMode = ref(true);
 const toast = useToast();
 const deleteDialogVisible = ref(false);
 const authStore = useAuthStore();
+const itemToDelete = ref<string | null>(null);
+const isAddingStaff = ref(false);
 const newStaff = ref({
   name: '',
   email: '',
@@ -16,58 +23,10 @@ const newStaff = ref({
   department: '',
   adminId: '',
 });
-const itemToDelete = ref<string | null>(null);
 
 const dialogBackgroundColor = computed(() =>
   isDarkMode.value ? '#201F2A' : '#FFFFFF'
 );
-
-const openDeleteDialog = (staffId: any) => {
-  itemToDelete.value = staffId;
-  deleteDialogVisible.value = true;
-};
-
-const closeDeleteDialog = () => {
-  deleteDialogVisible.value = false;
-  itemToDelete.value = { name: '', id: '' };
-};
-
-const confirmDelete = async () => {
-  if (!itemToDelete.value.id) {
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: "No staff member selected for deletion.",
-    });
-    return;
-  }
-
-  try {
-    await deleteStaff(itemToDelete.value);
-
-    // Close the delete dialog after successful deletion
-    closeDeleteDialog();
-
-    toast.add({
-      severity: "success",
-      summary: "Deleted",
-      detail: `${itemToDelete.value.name} has been successfully deleted.`,
-    });
-  } catch (error) {
-    console.error("Failed to delete item:", error);
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: `Failed to delete staff: ${error.message}`,
-    });
-  }
-};
-
-const addDrawerVisible = ref(false);
-const editDrawerVisible = ref(false);
-const nuxtApp = useNuxtApp()
-const isDarkMode = useState('isDarkMode');
-const editMode = ref(true);
 
 const openCreateStaffDrawer = () => {
   newStaff.value = { name: '', email: '', password: '', position: '', department: '', adminId: ''};
@@ -116,8 +75,6 @@ const setUserAccountType = async (staffUid: string, staff: any) => {
   console.log('User document created successfully:', userDocRef.firestore);
 };
 
-const isAddingStaff = ref(false)
-
 const addStaff = async () => {
   if (newStaff.value.name && newStaff.value.email && newStaff.value.password) {
     try {
@@ -155,18 +112,6 @@ const addStaff = async () => {
   }
 };
 
-onMounted(() => {
-  console.log(authStore.staffList)
-  authStore.loadCurrentUserFromStorage()
-  if(authStore.currentUser.accountType === 'SuperAdmin') {
-    authStore.fetchManagers()
-  }
-
-  // if(paginatedManagers) {
-  //   loading.value = false
-  // }
-})
-
 const viewStaffDetails = (staffId: string) => {
   const staffToEdit = authStore.staffList.find(staff => staff.id === staffId);
   
@@ -178,6 +123,47 @@ const viewStaffDetails = (staffId: string) => {
 
 const editStaffDetails = (staffId: string) => {
   console.log(`Edit details for staff ID: ${staffId}`);
+};
+
+const closeDeleteDialog = () => {
+  deleteDialogVisible.value = false;
+  itemToDelete.value = { name: '', id: '' };
+};
+
+const openDeleteDialog = (staffId: any) => {
+  itemToDelete.value = staffId;
+  console.log(itemToDelete.value, staffId)
+  deleteDialogVisible.value = true;
+};
+
+const confirmDelete = async () => {
+  console.log(itemToDelete.value)
+  if (!itemToDelete.value) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "No staff member selected for deletion.",
+    });
+    return;
+  }
+
+  try {
+    await deleteStaff(itemToDelete.value);
+    closeDeleteDialog();
+
+    toast.add({
+      severity: "success",
+      summary: "Deleted",
+      detail: `${itemToDelete.value.name} has been successfully deleted.`,
+    });
+  } catch (error) {
+    console.error("Failed to delete item:", error);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: `Failed to delete staff: ${error.message}`,
+    });
+  }
 };
 
 const deleteStaff = async (staffId: string) => {
@@ -208,42 +194,23 @@ const deleteStaff = async (staffId: string) => {
     });
   }
 };
+
+onMounted(() => {
+  console.log(authStore.staffList)
+  authStore.loadCurrentUserFromStorage()
+  if(authStore.currentUser.accountType === 'SuperAdmin') {
+    authStore.fetchManagers()
+  }
+
+  // if(paginatedManagers) {
+  //   loading.value = false
+  // }
+});
 </script>
 
 <template>
   <div class="space-y-8 p-6 max-w-8xl mx-auto">
     <Dialog 
-      v-model:visible="deleteDialogVisible" 
-      :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
-      :modal="true"
-      :closable="false"
-      :draggable="false"
-      class="custom-dialog"
-    >
-      <template #header>
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Confirm Deletion</h3>
-      </template>
-
-      <p class="text-gray-600 dark:text-gray-400 mt-4">
-        Are you sure you want to delete <span class="font-semibold">{{ itemToDelete.name }}</span>?
-        This action cannot be undone.
-      </p>
-
-      <div class="flex justify-end gap-4 mt-6">
-        <button
-          class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
-          @click="closeDeleteDialog"
-        >
-          Cancel
-        </button>
-        <button
-          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all"
-          @click="confirmDelete"
-        >
-          Delete
-        </button>
-      </div>
-    </Dialog><Dialog 
       v-model:visible="deleteDialogVisible" 
       :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
       :modal="true"
@@ -293,7 +260,7 @@ const deleteStaff = async (staffId: string) => {
     </div>
 
     <!-- Staff Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-6">
       <!-- Loop through staff members -->
       <div v-for="staff in authStore.staffList" :key="staff" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
         <div class="p-4">
