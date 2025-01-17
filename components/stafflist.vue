@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import Drawer from 'primevue/drawer';
 import { setDoc, doc, deleteDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
+import { getAuth, deleteUser, createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
 import { AccountType } from '~/types/auth';
 
 const addDrawerVisible = ref(false);
@@ -67,9 +67,13 @@ const setUserAccountType = async (staffUid: string, staff: any) => {
     department: staff.value.department,
     accountType: AccountType.user,
     adminName: authStore.currentUser.adminName,
-    imageUrl: authStore.currentUser.imageUrl,
+    // imageUrl: authStore.currentUser.imageUrl,
     adminId,
   };
+
+  if (authStore.currentUser.imageUrl) {
+    plainStaffData.imageUrl = authStore.currentUser.imageUrl;
+  }
 
   await setDoc(userDocRef, plainStaffData, { merge: true });
   console.log('User document created successfully:', userDocRef.firestore);
