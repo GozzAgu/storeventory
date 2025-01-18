@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-8xl mx-auto">
+  <div class="md:p-6 max-w-8xl mx-auto">
     <!-- Customers List Header -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mb-8">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">Customers List</h2>

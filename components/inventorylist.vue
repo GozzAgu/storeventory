@@ -14,22 +14,10 @@ const receipts = ref([
     issueDate: new Date().toLocaleDateString(),
   },
 ]);
-
-// Method to view a receipt's details
-const viewReceipt = (receiptNumber: string) => {
-  console.log(`View receipt details for ${receiptNumber}`);
-  // Logic to navigate to the receipt details page or open a modal
-};
-
-// Method to download a receipt as PDF
-const downloadReceipt = (receiptNumber: string) => {
-  console.log(`Download receipt ${receiptNumber} as PDF`);
-  // Logic to download the receipt as a PDF using jsPDF or similar
-};
 </script>
 
 <template>
-  <div class="space-y-8 p-6 max-w-8xl mx-auto">
+  <div class="md:p-6 max-w-8xl mx-auto">
     <!-- Receipts List Header -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-2xl font-semibold">Inventory List</h2>

@@ -43,7 +43,7 @@ const chartOptions = {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
     <!-- Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div

@@ -213,7 +213,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-8 p-6 max-w-8xl mx-auto">
+  <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
     <Dialog 
       v-model:visible="deleteDialogVisible" 
       :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
