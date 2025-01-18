@@ -256,7 +256,7 @@ onMounted(() => {
     <div class="flex justify-end">
       <button
         @click="openCreateStaffDrawer"
-        class="p-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
+        class="p-2 rounded-md shadow-md mb-4 hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
       >
         Create Staff

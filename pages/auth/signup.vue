@@ -156,7 +156,7 @@ function handleToggle() {
       </div>
       <button
         @click="handleSignUp"
-        class="w-full py-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
+        class="duration-300 hover:shadow-lg hover:scale-105 w-full py-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
         :disabled="loading"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
       >
@@ -171,7 +171,7 @@ function handleToggle() {
       </p>
       <Button
         :icon="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
-        class="w-full mb-4 py-2"
+        class="duration-300 hover:shadow-lg hover:scale-105 w-full mb-4 py-2"
         @click="handleToggle"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
       />
