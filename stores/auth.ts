@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from '@firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from '@firebase/auth';
 import { doc, setDoc, getDoc, collection, onSnapshot } from '@firebase/firestore';
 import type { User } from 'firebase/auth';
 import { AccountType } from '@/types/auth';
@@ -39,6 +39,19 @@ export const useAuthStore = defineStore('users', {
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser))
       }
       return user
+    },
+
+    async logout() {
+      const nuxtApp = useNuxtApp();
+      try {
+        await signOut(nuxtApp.$auth);
+        this.currentUser = null;
+        this.profileImageUrl = '';
+        localStorage.removeItem('currentUser');
+        useRouter().push('/auth/signin');
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
     },
 
     loadCurrentUserFromStorage() {
