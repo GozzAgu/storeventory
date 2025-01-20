@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import Drawer from 'primevue/drawer';
 import { setDoc, doc, deleteDoc } from "firebase/firestore";
 import { getAuth, deleteUser, createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
-import { AccountType } from '~/types/auth';
+import { AccountType, type StaffData } from '~/types/auth';
 
 const addDrawerVisible = ref(false);
 const editDrawerVisible = ref(false);
@@ -13,9 +12,10 @@ const editMode = ref(true);
 const toast = useToast();
 const deleteDialogVisible = ref(false);
 const authStore = useAuthStore();
-const itemToDelete = ref<string | null>(null);
+const itemToDelete = ref<{ name: string; id: string } | null>(null);
 const isAddingStaff = ref(false);
-const newStaff = ref({
+const newStaff = ref<StaffData>({
+  id: '',
   name: '',
   email: '',
   password: '',
@@ -24,12 +24,20 @@ const newStaff = ref({
   adminId: '',
 });
 
+const toggleAccountType = (staffId) => {
+  authStore.staffList.forEach((staff:StaffData) => {
+    if (staff.id === staffId) {
+      staff.accountType = staff.accountType === 'User' ? 'Admin' : 'User';
+    }
+  });
+};
+
 const dialogBackgroundColor = computed(() =>
   isDarkMode.value ? '#201F2A' : '#FFFFFF'
 );
 
 const openCreateStaffDrawer = () => {
-  newStaff.value = { name: '', email: '', password: '', position: '', department: '', adminId: ''};
+  newStaff.value = { id: '', name: '', email: '', password: '', position: '', department: '', adminId: ''};
   addDrawerVisible.value = true;
   editDrawerVisible.value = false;
 };
@@ -39,12 +47,12 @@ const closeCreateStaffDrawer = () => {
   editDrawerVisible.value = false;
 };
 
-const closeEditStaffDrawer = () => {
-  newStaff.value = { name: '', email: '', password: '', position: '', department: '', adminId: ''};
-  editDrawerVisible.value =false;
-  addDrawerVisible.value = false;
-  editMode.value = true;
-}
+// const closeEditStaffDrawer = () => {
+//   newStaff.value = { name: '', email: '', password: '', position: '', department: '', adminId: ''};
+//   editDrawerVisible.value =false;
+//   addDrawerVisible.value = false;
+//   editMode.value = true;
+// }
 
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
@@ -60,16 +68,17 @@ const setUserAccountType = async (staffUid: string, staff: any) => {
 
   const userDocRef = doc(nuxtApp.$firestore, 'users', staffUid);
 
-  const plainStaffData = {
-    name: staff.value.name,
-    email: staff.value.email,
-    position: staff.value.position,
-    department: staff.value.department,
-    accountType: AccountType.user,
-    adminName: authStore.currentUser.adminName,
-    // imageUrl: authStore.currentUser.imageUrl,
-    adminId,
-  };
+  const plainStaffData: StaffData = {
+  id: staffUid,
+  name: staff.value.name,
+  email: staff.value.email,
+  password: staff.value.password,
+  position: staff.value.position,
+  department: staff.value.department,
+  accountType: AccountType.user,
+  adminName: authStore.currentUser.adminName!,
+  adminId,
+};
 
   if (authStore.currentUser.imageUrl) {
     plainStaffData.imageUrl = authStore.currentUser.imageUrl;
@@ -134,9 +143,8 @@ const closeDeleteDialog = () => {
   itemToDelete.value = { name: '', id: '' };
 };
 
-const openDeleteDialog = (staffId: any) => {
+const openDeleteDialog = (staffId: { name: string; id: string }) => {
   itemToDelete.value = staffId;
-  console.log(itemToDelete.value, staffId)
   deleteDialogVisible.value = true;
 };
 
@@ -160,7 +168,7 @@ const confirmDelete = async () => {
       summary: "Deleted",
       detail: `${itemToDelete.value.name} has been successfully deleted.`,
     });
-  } catch (error) {
+  } catch (error:any) {
     console.error("Failed to delete item:", error);
     toast.add({
       severity: "error",
@@ -185,9 +193,8 @@ const deleteStaff = async (staffId: string) => {
       detail: `The staff member with ID ${staffId} has been successfully deleted.`,
     });
 
-    // Optionally, update your local staff list
     authStore.staffList = authStore.staffList.filter((staff) => staff.id !== staffId);
-  } catch (error) {
+  } catch (error:any) {
     console.error("Error deleting staff:", error);
 
     // Notify failure
@@ -202,13 +209,9 @@ const deleteStaff = async (staffId: string) => {
 onMounted(() => {
   console.log(authStore.staffList)
   authStore.loadCurrentUserFromStorage()
-  if(authStore.currentUser.accountType === 'SuperAdmin') {
+  if(authStore.currentUser?.accountType === 'SuperAdmin') {
     authStore.fetchManagers()
   }
-
-  // if(paginatedManagers) {
-  //   loading.value = false
-  // }
 });
 </script>
 
@@ -266,12 +269,14 @@ onMounted(() => {
     <!-- Staff Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-6">
       <!-- Loop through staff members -->
-      <div v-for="staff in authStore.staffList" :key="staff" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
+      <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
         <div class="p-4">
           <div class="border-b border-gray-800 pb-2 flex justify-between">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
-            <i v-if="staff.accountType == 'User'" class="pi pi-lock text-gray-600"></i>
-            <i v-if="staff.accountType == 'Admin'" class="pi pi-lock-open text-green-600"></i>
+            <i
+              :class="staff.accountType === 'User' ? 'pi pi-lock text-gray-600' : 'pi pi-lock-open text-green-600'"
+              @click="toggleAccountType(staff.id)"
+            ></i>
           </div>
           <p class="text-sm text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
           <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">Department: {{ staff.department }}</p>
