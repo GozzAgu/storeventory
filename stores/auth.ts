@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from '@firebase/auth';
 import { doc, setDoc, getDoc, collection, onSnapshot } from '@firebase/firestore';
 import type { User } from 'firebase/auth';
-import { AccountType } from '@/types/auth';
+import { AccountType, type StaffData } from '@/types/auth';
 
 export const useAuthStore = defineStore('users', {
   state: () => ({
@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('users', {
       adminId?: string;
     },
     profileImageUrl: '',
-    staffList: [],
+    staffList: [] as StaffData[],
   }),
 
   actions: {
