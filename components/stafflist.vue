@@ -233,20 +233,20 @@ onMounted(() => {
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Confirm Deletion</h3>
       </template>
 
-      <p class="text-gray-600 dark:text-gray-400 mt-4">
+      <p class="text-gray-600 dark:text-gray-400 mt-4 text-xs md:text-base">
         Are you sure you want to delete <span class="font-semibold">{{ itemToDelete?.name }}</span>?
         This action cannot be undone.
       </p>
 
       <div class="flex justify-end gap-4 mt-6">
         <button
-          class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
+          class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
           @click="closeDeleteDialog"
         >
           Cancel
         </button>
         <button
-          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all"
+          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all text-xs md:text-base"
           @click="confirmDelete"
         >
           Delete
@@ -255,15 +255,15 @@ onMounted(() => {
     </Dialog>
     <!-- Staff List Header -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
-      <h2 class="text-2xl font-semibold">Staff List</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400">View all your staff members</p>
+      <h2 class="text-sm md:text-2xl font-semibold">Staff List</h2>
+      <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View all your staff members</p>
     </div>
 
     <!-- Create Staff Button -->
     <div class="flex justify-end">
       <button
         @click="openCreateStaffDrawer"
-        class="p-2 rounded-md shadow-md mb-4 hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
+        class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
       >
         Create Staff
@@ -271,24 +271,24 @@ onMounted(() => {
     </div>
 
     <!-- Staff Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-2">
       <!-- Loop through staff members -->
-      <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl hover:translate-y-1">
+      <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden md:transform md:transition-all md:hover:scale-105 hover:shadow-xl md:hover:translate-y-1">
         <div class="p-4">
           <div class="border-b border-gray-800 pb-2 flex justify-between">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
+            <h3 class="text-sm md:text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
             <i
               :class="staff.accountType === 'User' ? 'pi pi-lock text-gray-600 cursor-pointer' : 'pi pi-lock-open text-green-600 cursor-pointer'"
               @click="toggleAccountType(staff.id)"
             ></i>
           </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
-          <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">Department: {{ staff.department }}</p>
-          <p class="text-sm mt-2 text-gray-700 dark:text-gray-300">Role: {{ staff.accountType }}</p>
+          <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
+          <p class="text-xs md:text-sm mt-2 text-gray-700 dark:text-gray-300">Department: {{ staff.department }}</p>
+          <p class="text-xs md:text-sm mt-2 text-gray-700 dark:text-gray-300">Role: {{ staff.accountType }}</p>
 
           <div class="mt-4 flex justify-between items-center">
-            <button @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600 text-sm">View & Edit</button>
-            <button @click="openDeleteDialog(staff)" class="text-red-500 hover:text-red-600 text-sm">Delete</button>
+            <button @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600 text-xs md:text-sm">View & Edit</button>
+            <button @click="openDeleteDialog(staff)" class="text-red-500 hover:text-red-600 text-xs md:text-sm">Delete</button>
           </div>
         </div>
       </div>

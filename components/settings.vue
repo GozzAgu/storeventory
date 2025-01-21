@@ -46,11 +46,11 @@ const saveNotifications = () => {
   <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
     <!-- Profile Settings Form -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
-      <h2 class="text-2xl font-semibold mb-4">Profile Settings</h2>
+      <h2 class="text-sm md:text-2xl font-semibold mb-4">Profile Settings</h2>
       <form @submit.prevent="updateProfile">
         <div class="space-y-4">
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+            <label for="username" class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
             <input
               v-model="username"
               type="text"
@@ -63,7 +63,7 @@ const saveNotifications = () => {
 
           <!-- Image Upload Section -->
           <div>
-            <label for="profileImage" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Image</label>
+            <label for="profileImage" class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Profile Image</label>
             <input
               type="file"
               id="profileImage"
@@ -77,7 +77,7 @@ const saveNotifications = () => {
 
           <div class="flex justify-end">
             <button
-              class="py-2 px-4 rounded-md mb-4 transition-all duration-300"
+              class="text-xs md:text-base py-2 px-4 rounded-md mb-4 transition-all duration-300"
               style="background-color: #4c5270; color: white; border-color: #4c5270;"
             >
               Save Changes
@@ -89,7 +89,7 @@ const saveNotifications = () => {
 
     <!-- Notification Preferences Form -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
-      <h2 class="text-2xl font-semibold mb-4">Notification Preferences</h2>
+      <h2 class="text-sm md:text-2xl font-semibold mb-4">Notification Preferences</h2>
       <form @submit.prevent="saveNotifications">
         <div class="space-y-4">
           <div class="flex items-center space-x-4">
@@ -99,7 +99,7 @@ const saveNotifications = () => {
               v-model="emailNotifications"
               class="h-5 w-5 text-blue-500 border-gray-300 rounded"
             />
-            <label for="emailNotifications" class="text-sm text-gray-700 dark:text-gray-300">Receive Email Notifications</label>
+            <label for="emailNotifications" class="text-xs md:text-sm text-gray-700 dark:text-gray-300">Receive Email Notifications</label>
           </div>
           <div class="flex items-center space-x-4">
             <input
@@ -108,11 +108,11 @@ const saveNotifications = () => {
               v-model="pushNotifications"
               class="h-5 w-5 text-blue-500 border-gray-300 rounded"
             />
-            <label for="pushNotifications" class="text-sm text-gray-700 dark:text-gray-300">Enable Push Notifications</label>
+            <label for="pushNotifications" class="text-xs md:text-sm text-gray-700 dark:text-gray-300">Enable Push Notifications</label>
           </div>
           <div class="flex justify-end">
             <button
-              class="py-2 px-4 rounded-md mb-4 transition-all duration-300"
+              class="text-xs md:text-base py-2 px-4 rounded-md mb-4 transition-all duration-300"
               style="background-color: #4c5270; color: white; border-color: #4c5270;"
             >
               Save Changes
