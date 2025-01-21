@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
@@ -6,7 +5,8 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 const isDarkMode = useState('isDarkMode');
 const isSidenavOpen = ref(true);
-const route = useRoute();  // Get the current route
+const route = useRoute();
+const mobileNavOpen = ref(false);
 
 const menuItems = [
   { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard/home' },
@@ -36,14 +36,20 @@ onMounted(() => {
 </script>
 
 <template>
+  <div v-if="mobileNavOpen" 
+    class="absolute inset-0 bg-black opacity-50 z-50" 
+    @click="mobileNavOpen = false"
+  ></div>
+
   <div class="flex h-screen" :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'">
+    <!-- Sidebar for large screens -->
     <div
       :class="[ 
         'transition-all duration-300', 
         isSidenavOpen ? 'w-64' : 'w-16', 
         isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text' 
       ]"
-      class="h-full shadow-lg flex flex-col"
+      class="h-full shadow-lg flex flex-col lg:block hidden"
     >
       <!-- Sidebar Content -->
       <div class="flex items-center p-4 space-x-4">
@@ -79,6 +85,42 @@ onMounted(() => {
       </nav>
     </div>
 
+    <!-- Mobile Navbar (visible on mobile) -->
+    <transition name="mobile-nav">
+      <div v-show="mobileNavOpen" class="lg:hidden fixed inset-y-0 left-0 z-50 flex justify-start">
+        <div 
+          :class="[
+            'w-64 p-4',
+            isDarkMode ? 'bg-dark-bg' : 'bg-light-bg',
+            'transition-all duration-300'
+          ]"
+        >
+          <div class="flex items-center justify-end">
+            <i
+              class="pi pi-chevron-left cursor-pointer text-white"
+              @click="mobileNavOpen = false"
+            ></i>
+          </div>
+          <nav class="flex flex-col space-y-4 mt-8">
+            <NuxtLink
+              @click="item.label === 'Logout' && logout()"
+              v-for="item in menuItems"
+              :key="item.label"
+              :to="item.route"
+              :class="[
+                'flex items-center space-x-4 p-2 rounded-md cursor-pointer hover:bg-darker-bg hover:text-light-text',
+                { 'bg-hover-bg text-hover-text': isActive(item.route!) }
+              ]"
+              exact-active-class="bg-hover-bg text-hover-text"
+            >
+              <i :class="item.icon" class="text-lg"></i>
+              <span class="font-medium">{{ item.label }}</span>
+            </NuxtLink>
+          </nav>
+        </div>
+      </div>
+    </transition>
+
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col">
       <div
@@ -91,9 +133,15 @@ onMounted(() => {
         :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'"
       >
         <div class="flex items-center space-x-4">
+          <!-- Mobile Menu Icon -->
+          <i
+            class="pi pi-bars text-lg cursor-pointer lg:hidden"
+            @click="mobileNavOpen = !mobileNavOpen"
+          ></i>
           <span class="text-xl font-black">SwiftSort</span>
         </div>
 
+        <!-- Theme Toggle & Notifications -->
         <div class="ml-auto flex items-center space-x-4">
           <div class="relative cursor-pointer hover:text-darker-text transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2">
             <i class="pi pi-bell text-lg"></i>
@@ -119,23 +167,22 @@ onMounted(() => {
 </template>
 
 <style>
-nav div:hover {
-  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
-  transform: scale(1.05);
-}
-
 :root {
   --hover-bg: #201F2A;
   --hover-text: #CDCFD9;
 }
 
-/* Active Link Styles */
 .bg-hover-bg {
   background-color: var(--hover-bg);
 }
 .text-hover-text {
   color: var(--hover-text);
+}
+
+.mobile-nav-enter-active, .mobile-nav-leave-active {
+  transition: transform 0.3s ease;
+}
+.mobile-nav-enter, .mobile-nav-leave-to{
+  transform: translateX(-100%);
 }
 </style>
