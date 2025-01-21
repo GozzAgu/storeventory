@@ -102,6 +102,10 @@ onMounted(() => {
             ></i>
           </div>
           <nav class="flex flex-col space-y-4 mt-8">
+            <div class="flex items-center mb-4 space-x-4">
+              <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+              <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ authStore.currentUser?.adminName }}</span>
+            </div>
             <NuxtLink
               @click="item.label === 'Logout' && logout()"
               v-for="item in menuItems"
