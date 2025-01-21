@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Drawer from 'primevue/drawer';
-import { setDoc, doc, deleteDoc } from "firebase/firestore";
-import { getAuth, deleteUser, createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
+import { setDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
 import { AccountType, type StaffData } from '~/types/auth';
 
 const addDrawerVisible = ref(false);
@@ -12,7 +12,7 @@ const editMode = ref(true);
 const toast = useToast();
 const deleteDialogVisible = ref(false);
 const authStore = useAuthStore();
-const itemToDelete = ref<{ name: string; id: string } | null>(null);
+const itemToDelete: Ref<{ name: string; id: string } | null> = ref(null);
 const isAddingStaff = ref(false);
 const newStaff = ref<StaffData>({
   id: '',
@@ -21,15 +21,26 @@ const newStaff = ref<StaffData>({
   password: '',
   position: '',
   department: '',
+  accountType: AccountType.user,
   adminId: '',
 });
 
-const toggleAccountType = (staffId) => {
-  authStore.staffList.forEach((staff:StaffData) => {
-    if (staff.id === staffId) {
-      staff.accountType = staff.accountType === 'User' ? 'Admin' : 'User';
+const toggleAccountType = async (staffId: string) => {
+  try {
+    for (const staff of authStore.staffList) {
+      if (staff.id === staffId) {
+        const newAccountType = staff.accountType === AccountType.user ? AccountType.admin : AccountType.user;
+        const staffRef = doc(nuxtApp.$firestore, 'users', staffId);
+        await updateDoc(staffRef, {
+          accountType: newAccountType
+        });
+        staff.accountType = newAccountType;
+        break;
+      }
     }
-  });
+  } catch (error) {
+    console.error('Error updating account type: ', error);
+  }
 };
 
 const dialogBackgroundColor = computed(() =>
@@ -37,7 +48,7 @@ const dialogBackgroundColor = computed(() =>
 );
 
 const openCreateStaffDrawer = () => {
-  newStaff.value = { id: '', name: '', email: '', password: '', position: '', department: '', adminId: ''};
+  newStaff.value = { id: '', name: '', email: '', password: '', position: '', department: '', accountType: AccountType.user, adminId: ''};
   addDrawerVisible.value = true;
   editDrawerVisible.value = false;
 };
@@ -46,13 +57,6 @@ const closeCreateStaffDrawer = () => {
   addDrawerVisible.value = false;
   editDrawerVisible.value = false;
 };
-
-// const closeEditStaffDrawer = () => {
-//   newStaff.value = { name: '', email: '', password: '', position: '', department: '', adminId: ''};
-//   editDrawerVisible.value =false;
-//   addDrawerVisible.value = false;
-//   editMode.value = true;
-// }
 
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
@@ -160,7 +164,7 @@ const confirmDelete = async () => {
   }
 
   try {
-    await deleteStaff(itemToDelete.value);
+    await deleteStaff(itemToDelete.value.id);
     closeDeleteDialog();
 
     toast.add({
@@ -230,7 +234,7 @@ onMounted(() => {
       </template>
 
       <p class="text-gray-600 dark:text-gray-400 mt-4">
-        Are you sure you want to delete <span class="font-semibold">{{ itemToDelete.name }}</span>?
+        Are you sure you want to delete <span class="font-semibold">{{ itemToDelete?.name }}</span>?
         This action cannot be undone.
       </p>
 
@@ -274,7 +278,7 @@ onMounted(() => {
           <div class="border-b border-gray-800 pb-2 flex justify-between">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
             <i
-              :class="staff.accountType === 'User' ? 'pi pi-lock text-gray-600' : 'pi pi-lock-open text-green-600'"
+              :class="staff.accountType === 'User' ? 'pi pi-lock text-gray-600 cursor-pointer' : 'pi pi-lock-open text-green-600 cursor-pointer'"
               @click="toggleAccountType(staff.id)"
             ></i>
           </div>
@@ -284,7 +288,7 @@ onMounted(() => {
 
           <div class="mt-4 flex justify-between items-center">
             <button @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600 text-sm">View & Edit</button>
-            <button @click="openDeleteDialog(staff.id)" class="text-red-500 hover:text-red-600 text-sm">Delete</button>
+            <button @click="openDeleteDialog(staff)" class="text-red-500 hover:text-red-600 text-sm">Delete</button>
           </div>
         </div>
       </div>

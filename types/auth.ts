@@ -4,15 +4,16 @@ export enum AccountType {
   user = 'User',
   restricted = 'Restricted'
 }
-export interface StaffData {
+
+export type StaffData = {
   id: string;
   name: string;
   email: string;
   password: string;
   position: string;
   department: string;
-  accountType?: AccountType.user | AccountType.admin;
-  adminName?: string;
+  accountType: AccountType;
   adminId: string;
+  adminName?: string;
   imageUrl?: string;
-}
+};

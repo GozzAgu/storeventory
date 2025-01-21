@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-8 p-6 max-w-4xl mx-auto">
+  <div class="space-y-8 max-w-4xl mx-auto">
     <!-- Receipt Header -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <div class="flex justify-between items-center mb-6">

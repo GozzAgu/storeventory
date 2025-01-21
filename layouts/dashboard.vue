@@ -23,6 +23,10 @@ const isActive = (routeToCheck: string) => {
   return route.path === routeToCheck;
 };
 
+const logout = async () => {
+  await authStore.logout();
+};
+
 onMounted(() => {
   if (authStore.currentUser?.id) {
     authStore.fetchCurrentUser(authStore.currentUser.id);
@@ -59,6 +63,7 @@ onMounted(() => {
       <!-- Menu Items with NuxtLink -->
       <nav class="flex flex-col space-y-4 mt-8 px-4">
         <NuxtLink
+          @click="item.label === 'Logout' && logout()"
           v-for="item in menuItems"
           :key="item.label"
           :to="item.route"
