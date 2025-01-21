@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, ty
 import { AccountType, type StaffData } from '~/types/auth';
 
 const addDrawerVisible = ref(false);
+const loading = ref(false);
 const editDrawerVisible = ref(false);
 const nuxtApp = useNuxtApp()
 const isDarkMode = useState('isDarkMode');
@@ -201,7 +202,6 @@ const deleteStaff = async (staffId: string) => {
   } catch (error:any) {
     console.error("Error deleting staff:", error);
 
-    // Notify failure
     toast.add({
       severity: "error",
       summary: "Deletion Failed",
@@ -210,13 +210,19 @@ const deleteStaff = async (staffId: string) => {
   }
 };
 
-onMounted(() => {
-  console.log(authStore.staffList)
-  authStore.loadCurrentUserFromStorage()
-  if(authStore.currentUser?.accountType === 'SuperAdmin') {
-    authStore.fetchManagers()
+onMounted(async () => {
+  try {
+    loading.value = true;
+    if (authStore.currentUser?.accountType === 'SuperAdmin') {
+      await authStore.fetchManagers();
+    }
+    loading.value = false;
+  } catch (error) {
+    console.error('Error loading staff list:', error);
+    loading.value = false;
   }
 });
+
 </script>
 
 <template>
@@ -253,13 +259,11 @@ onMounted(() => {
         </button>
       </div>
     </Dialog>
-    <!-- Staff List Header -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-sm md:text-2xl font-semibold">Staff List</h2>
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View all your staff members</p>
     </div>
 
-    <!-- Create Staff Button -->
     <div class="flex justify-end">
       <button
         @click="openCreateStaffDrawer"
@@ -270,10 +274,12 @@ onMounted(() => {
       </button>
     </div>
 
-    <!-- Staff Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-2">
-      <!-- Loop through staff members -->
-      <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-md overflow-hidden md:transform md:transition-all md:hover:scale-105 hover:shadow-xl md:hover:translate-y-1">
+    <div v-if="loading" class="flex justify-center items-center w-full h-full">
+      <i class="pi pi-spinner pi-spin text-4xl text-gray-500 dark:text-gray-300"></i>
+    </div>
+
+    <div v-else class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-2">
+      <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-lg shadow-sm overflow-hidden md:transform md:transition-all md:hover:scale-105 hover:shadow-md md:hover:translate-y-1">
         <div class="p-4">
           <div class="border-b border-gray-800 pb-2 flex justify-between">
             <h3 class="text-sm md:text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
@@ -294,12 +300,10 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- No Staff Message -->
-    <div v-if="authStore.staffList.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
+    <div v-if="loading = false && authStore.staffList.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
       <p class="text-gray-600 dark:text-gray-400">No staff members added yet.</p>
     </div>
 
-    <!-- Create Staff Drawer -->
     <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
       <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Staff</h3>
       <form @submit.prevent="addStaff" class="space-y-4 mt-4">
@@ -469,7 +473,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Custom styling for staff cards */
 .card {
   border-radius: 0.375rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);

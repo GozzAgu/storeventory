@@ -44,7 +44,6 @@ const saveNotifications = () => {
 
 <template>
   <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
-    <!-- Profile Settings Form -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-sm md:text-2xl font-semibold mb-4">Profile Settings</h2>
       <form @submit.prevent="updateProfile">
@@ -61,7 +60,6 @@ const saveNotifications = () => {
             />
           </div>
 
-          <!-- Image Upload Section -->
           <div>
             <label for="profileImage" class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Profile Image</label>
             <input

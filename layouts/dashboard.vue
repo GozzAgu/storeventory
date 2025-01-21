@@ -42,7 +42,6 @@ onMounted(() => {
   ></div>
 
   <div class="flex h-screen" :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'">
-    <!-- Sidebar for large screens -->
     <div
       :class="[ 
         'transition-all duration-300', 
@@ -51,13 +50,11 @@ onMounted(() => {
       ]"
       class="h-full shadow-lg flex flex-col lg:block hidden"
     >
-      <!-- Sidebar Content -->
       <div class="flex items-center p-4 space-x-4">
         <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
         <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ authStore.currentUser?.adminName }}</span>
       </div>
 
-      <!-- Sidebar Toggle -->
       <div class="flex items-center justify-end p-4">
         <i
           class="pi pi-chevron-left cursor-pointer"
@@ -66,7 +63,6 @@ onMounted(() => {
         ></i>
       </div>
 
-      <!-- Menu Items with NuxtLink -->
       <nav class="flex flex-col space-y-4 mt-8 px-4">
         <NuxtLink
           @click="item.label === 'Logout' && logout()"
@@ -85,7 +81,6 @@ onMounted(() => {
       </nav>
     </div>
 
-    <!-- Mobile Navbar (visible on mobile) -->
     <transition name="mobile-nav">
       <div v-show="mobileNavOpen" class="lg:hidden fixed inset-y-0 left-0 z-50 flex justify-start">
         <div 
@@ -125,7 +120,6 @@ onMounted(() => {
       </div>
     </transition>
 
-    <!-- Main Content Area -->
     <div class="flex-1 flex flex-col">
       <div
         class="w-full h-[60px] flex items-center px-6 transition-all duration-300"
@@ -137,7 +131,6 @@ onMounted(() => {
         :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'"
       >
         <div class="flex items-center space-x-4">
-          <!-- Mobile Menu Icon -->
           <i
             class="pi pi-bars text-lg cursor-pointer lg:hidden"
             @click="mobileNavOpen = !mobileNavOpen"
@@ -145,7 +138,6 @@ onMounted(() => {
           <span class="text-xl font-black">SwiftSort</span>
         </div>
 
-        <!-- Theme Toggle & Notifications -->
         <div class="ml-auto flex items-center space-x-4">
           <div class="relative cursor-pointer hover:text-darker-text transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2">
             <i class="pi pi-bell text-lg"></i>
@@ -162,7 +154,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Main Content (Where route components will appear) -->
       <div class="p-6 flex-1 overflow-auto">
         <NuxtPage />
       </div>

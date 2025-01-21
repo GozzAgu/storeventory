@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const isDarkMode = useState('isDarkMode');
 
-const faqOpen = ref([false, false, false]); // To manage the open/close state of each FAQ
+const faqOpen = ref([false, false, false]);
 const question = ref('');
 
 const toggleFAQ = (index: number) => {
@@ -10,13 +10,12 @@ const toggleFAQ = (index: number) => {
 
 const submitQuestion = () => {
   console.log('Question submitted:', question.value);
-  question.value = ''; // Clear the textarea after submission
+  question.value = '';
 };
 </script>
 
 <template>
   <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
-    <!-- Help Overview -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-sm md:text-2xl font-semibold mb-4">Help & Support</h2>
       <p class="text-gray-600 dark:text-gray-400 text-xs md:text-sm">
@@ -24,7 +23,6 @@ const submitQuestion = () => {
       </p>
     </div>
 
-    <!-- FAQ Section -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h3 class="text-sm md:text-lg font-semibold mb-4">Frequently Asked Questions</h3>
       <ul class="space-y-4">
@@ -64,7 +62,6 @@ const submitQuestion = () => {
       </ul>
     </div>
 
-    <!-- Submit a Question -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h3 class="text-sm md:text-lg font-semibold mb-4">Submit a Question</h3>
       <form @submit.prevent="submitQuestion">
