@@ -9,6 +9,7 @@
 
 <script setup>
 import Toast from 'primevue/toast';
+import { useAuthStore } from './stores/auth';
 
 const isDarkMode = useState('isDarkMode');
 const store = useAuthStore()

@@ -3,6 +3,7 @@ import Drawer from 'primevue/drawer';
 import { setDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, type Auth } from '@firebase/auth';
 import { AccountType, type StaffData } from '~/types/auth';
+import { useAuthStore } from '~/stores/auth';
 
 const addDrawerVisible = ref(false);
 const loading = ref(false);
@@ -300,10 +301,12 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!-- No Staff Message -->
     <div v-if="loading = false && authStore.staffList.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
       <p class="text-gray-600 dark:text-gray-400">No staff members added yet.</p>
     </div>
 
+    <!-- Create Staff Drawer -->
     <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
       <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Staff</h3>
       <form @submit.prevent="addStaff" class="space-y-4 mt-4">
@@ -473,6 +476,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* Custom styling for staff cards */
 .card {
   border-radius: 0.375rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);

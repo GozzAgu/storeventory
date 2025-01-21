@@ -1,4 +1,3 @@
-import { AccountType } from "./auth";
 
 export type InventoryData = {
   id: string;
@@ -7,7 +6,7 @@ export type InventoryData = {
   category: string;
   quantity: number;
   price: number;
-  modeOfPayment: 'string';
+  modeOfPayment: string;
   supplier?: string;
   dateAdded: Date;
   dateUpdated?: Date;
