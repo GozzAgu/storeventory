@@ -27,6 +27,13 @@ const logout = async () => {
   await authStore.logout();
 };
 
+watch(
+  () => route.path,
+  () => {
+    mobileNavOpen.value = false;
+  }
+);
+
 onMounted(() => {
   if (authStore.currentUser?.id) {
     authStore.fetchCurrentUser(authStore.currentUser.id);
