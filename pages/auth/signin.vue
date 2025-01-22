@@ -83,7 +83,7 @@ function handleToggle() {
       :class="isDarkMode ? 'bg-darker-bg' : 'bg-lighter-bg'"
     >
       <h1 class="text-3xl font-bold mb-6 tracking-wide" :class="isDarkMode ? 'text-light-text' : 'text-dark-text'">
-        Sign In to SwiftSort
+        Sign In to Stoventory
       </h1>
       <p class="text-sm mb-6" :class="isDarkMode ? 'text-gray-400' : 'text-gray-600'">
         Effortlessly manage your inventory and transactions.

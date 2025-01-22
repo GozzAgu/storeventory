@@ -142,7 +142,7 @@ onMounted(() => {
             class="pi pi-bars text-lg cursor-pointer lg:hidden"
             @click="mobileNavOpen = !mobileNavOpen"
           ></i>
-          <span class="text-xl font-black">SwiftSort</span>
+          <span class="text-xl font-black">Stoventory</span>
         </div>
 
         <div class="ml-auto flex items-center space-x-4">
