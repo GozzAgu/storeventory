@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-// Sample data for inventory
+const size = ref({ label: 'Small', value: 'null' });
 const receipts = ref([
   {
     receiptNumber: 'INV001',
@@ -25,7 +25,6 @@ function downloadReceipt(data: any) {
   console.log('Downloading receipt:', data);
 }
 
-// Export functionality
 const dt = ref();
 const exportCSV = () => {
   dt.value?.exportCSV();
@@ -33,71 +32,50 @@ const exportCSV = () => {
 </script>
 
 <template>
-  <div class="p-4 md:p-6 max-w-8xl mx-auto">
+  <div class="space-y-8 md:p-6 max-w-full mx-auto">
     <!-- Header Section -->
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg min-w-[5rem]">
       <h2 class="text-2xl font-semibold">Inventory</h2>
       <p class="text-sm text-gray-600 dark:text-gray-400">
         View all products in inventory.
       </p>
     </div>
 
-    <!-- PrimeVue DataTable -->
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6 overflow-auto">
+    <!-- Responsive DataTable Container -->
+    <div class="w-full overflow-x-auto">
       <DataTable
         :value="receipts"
         ref="dt"
-        responsiveLayout="scroll"
-        tableStyle="min-width: 40rem"
-        class="p-datatable-gridlines text-xs sm:text-sm"
+        tableStyle="width: 100%; table-layout: auto;"
       >
-        <!-- Export Button in Header -->
         <template #header>
-          <div class="flex justify-end pb-4">
-            <Button
-              icon="pi pi-external-link"
-              label="Export"
-              @click="exportCSV"
-              class="p-button-sm sm:w-auto w-full text-xs sm:text-sm"
-            />
+          <div class="text-end pb-4">
+            <Button icon="pi pi-external-link" label="Export" @click="exportCSV()" />
           </div>
         </template>
-
-        <!-- Table Columns -->
-        <Column field="receiptNumber" header="Inventory #" />
-        <Column field="customerName" header="Customer" />
-        <Column field="total" header="Total" />
-        <Column field="issueDate" header="Issued On" />
-        <Column header="Actions" bodyStyle="text-align: center">
-          <template #body="slotProps">
-            <div class="flex gap-2 justify-center sm:justify-start">
-              <button
-                class="p-button p-button-text p-button-info text-xs sm:text-sm w-full sm:w-auto"
-                @click="viewDetails(slotProps.data)"
-              >
-                View
-              </button>
-              <button
-                class="p-button p-button-text p-button-success text-xs sm:text-sm w-full sm:w-auto"
-                @click="downloadReceipt(slotProps.data)"
-              >
-                Download
-              </button>
-            </div>
-          </template>
-        </Column>
+        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
+        <Column field="customerName" header="Customer" style="min-width: 150px;" />
+        <Column field="total" header="Total" style="min-width: 100px;" />
+        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
+        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
+        <Column field="customerName" header="Customer" style="min-width: 150px;" />
+        <Column field="total" header="Total" style="min-width: 100px;" />
+        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
+        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
+        <Column field="customerName" header="Customer" style="min-width: 150px;" />
+        <Column field="total" header="Total" style="min-width: 100px;" />
+        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
+        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
+        <Column field="customerName" header="Customer" style="min-width: 150px;" />
+        <Column field="total" header="Total" style="min-width: 100px;" />
+        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
       </DataTable>
-    </div>
-
-    <!-- No Receipts Message -->
-    <div v-if="receipts.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
-      <p class="text-gray-600 dark:text-gray-400">No receipts generated yet.</p>
     </div>
   </div>
 </template>
 
+
 <style>
-/* Define light and dark mode variables */
 :root {
   --table-header-bg: #f9f9f9;
   --table-row-bg: #ffffff;
@@ -112,9 +90,13 @@ const exportCSV = () => {
   --table-hover-bg: #2c2c2c;
 }
 
-/* DataTable Styles */
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
 .p-datatable {
   background-color: transparent;
+  width: 100%;
 }
 
 .p-datatable .p-datatable-thead > tr > th {
@@ -127,10 +109,27 @@ const exportCSV = () => {
   background-color: var(--table-row-bg);
   color: var(--text-color, #000);
   border-bottom: 1px solid var(--table-border-color);
+  white-space: nowrap; /* Prevent text wrapping */
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-/* Hover Effect */
 .p-datatable .p-datatable-tbody > tr:hover {
   background-color: var(--table-hover-bg);
+}
+
+@media screen and (max-width: 580px) {
+  .p-datatable {
+    font-size: 12px;
+  }
+
+  .p-datatable .p-datatable-tbody .p-button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  height: 48px; /* Adjust the height as needed */
 }
 </style>

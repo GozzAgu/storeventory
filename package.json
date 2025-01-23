@@ -20,7 +20,8 @@
     "primeicons": "^7.0.0",
     "primevue": "^4.2.3",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.12.2",

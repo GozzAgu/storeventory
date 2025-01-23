@@ -127,7 +127,7 @@ onMounted(() => {
       </div>
     </transition>
 
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col overflow-x-auto">
       <div
         class="w-full h-[60px] flex items-center px-6 transition-all duration-300"
         :style="{
@@ -161,8 +161,8 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="p-6 flex-1 overflow-auto">
-        <NuxtPage />
+      <div class="p-6 flex-1">
+        <slot />
       </div>
     </div>
   </div>

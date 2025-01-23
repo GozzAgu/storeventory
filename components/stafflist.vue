@@ -5,8 +5,8 @@ import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, ty
 import { AccountType, type StaffData } from '~/types/auth';
 import { useAuthStore } from '~/stores/auth';
 
-const addDrawerVisible = ref(false);
 const loading = ref(false);
+const addDrawerVisible = ref(false);
 const editDrawerVisible = ref(false);
 const nuxtApp = useNuxtApp()
 const isDarkMode = useState('isDarkMode');

@@ -2,13 +2,16 @@
 export type InventoryData = {
   id: string;
   name: string;
-  description?: string;
+  description: string;
   category: string;
-  quantity: number;
   price: number;
+  color: string;
+  size: string;
+  grade?: string;
+  swapIn?: string;
+  serialNumber?: string;
   modeOfPayment: string;
-  supplier?: string;
+  supplier: string;
   dateAdded: Date;
   dateUpdated?: Date;
-  imageUrl?: string;
 };
