@@ -44,6 +44,7 @@ const exportCSV = () => {
     <!-- Responsive DataTable Container -->
     <div class="w-full overflow-x-auto">
       <DataTable
+        scrollable scrollHeight="400px"
         paginator :rows="20" :rowsPerPageOptions="[5, 10, 20, 50]"
         :size="size.value"
         :value="receipts"
@@ -135,5 +136,16 @@ const exportCSV = () => {
   white-space: nowrap; /* Prevent text wrapping */
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+/* Webkit-based Browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 10px; /* Scrollbar width */
+  height: 10px; /* Horizontal scrollbar height */
+}
+
+* {
+  scrollbar-color: #a0a0a0 #f3f3f3; /* Thumb color and track color */
+  scrollbar-width: thin; /* Thin scrollbar width */
 }
 </style>

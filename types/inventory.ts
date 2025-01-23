@@ -1,4 +1,3 @@
-
 export type InventoryData = {
   id: string;
   name: string;
