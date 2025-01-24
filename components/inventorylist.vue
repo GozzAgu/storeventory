@@ -1,151 +1,244 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const size = ref({ label: 'small', value: 'small' });
 const receipts = ref([
-  {
-    receiptNumber: 'INV001',
-    customerName: 'John Doe',
-    total: 150.5,
-    issueDate: new Date().toLocaleDateString(),
-  },
-  {
-    receiptNumber: 'INV002',
-    customerName: 'Jane Smith',
-    total: 200.0,
-    issueDate: new Date().toLocaleDateString(),
-  },
+  { receiptNumber: 'INV001', customerName: 'John Doe Samuel Smith', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe Samuel Smith', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
+  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() }
 ]);
+const addDrawerVisible = ref(false);
+const isDarkMode = useState('isDarkMode');
+const currentPage = ref(1);
+const itemsPerPage = ref(30);
+const searchQuery = ref('');
 
-function viewDetails(data: any) {
-  console.log('Viewing receipt details:', data);
-}
+const drawerBackgroundColor = computed(() => {
+  return isDarkMode.value ? '#201F2A' : '#E3E4EB';
+});
 
-function downloadReceipt(data: any) {
-  console.log('Downloading receipt:', data);
-}
+const calculateIndex = (index: any) => {
+  return (currentPage.value - 1) * itemsPerPage.value + index + 1;
+};
 
-const dt = ref();
+const paginatedReceipts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return receipts.value.slice(start, end);
+});
+
+const openCreateInventoryDrawer = () => {
+  addDrawerVisible.value = true;
+};
+
 const exportCSV = () => {
-  dt.value?.exportCSV();
+  const csvContent = [
+    ['INV ID', 'Customer', 'Total', 'Issued On'], 
+    ...receipts.value.map(receipt => [
+      receipt.receiptNumber,
+      receipt.customerName,
+      receipt.total.toFixed(2),
+      receipt.issueDate
+    ])
+  ]
+    .map(row => row.join(','))
+    .join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'receipts.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 </script>
 
 <template>
   <div class="space-y-8 md:p-6 max-w-full mx-auto">
+    <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
+      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Inventory</h3>
+      <form @submit.prevent="" class="space-y-4 mt-4">
+
+      </form>
+    </Drawer>
     <!-- Header Section -->
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg min-w-[5rem]">
-      <h2 class="text-2xl font-semibold">Inventory</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400">
-        View all products in inventory.
-      </p>
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+      <h2 class="text-sm md:text-2xl font-semibold">Inventory</h2>
+      <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all products in inventory</p>
     </div>
 
-    <!-- Responsive DataTable Container -->
-    <div class="w-full overflow-x-auto">
-      <DataTable
-        scrollable scrollHeight="400px"
-        paginator :rows="20" :rowsPerPageOptions="[5, 10, 20, 50]"
-        :size="size.value"
-        :value="receipts"
-        ref="dt"
-        tableStyle="width: 100%; table-layout: auto;"
-      >
-        <div class="flex justify-between items-center pb-4">
-          <Button 
-            icon="pi pi-external-link" 
-            label="Export" 
-            @click="exportCSV()" 
-          />
+    <!-- Table Section -->
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[770px]">
+      <div class="flex justify-between items-center pb-4">
+        <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Inventory</h3>
+        <div class="flex justify-between items-center mb-4">
+          <!-- <input 
+            type="text" 
+            v-model="searchQuery" 
+            placeholder="Search by INV ID, Customer or Date..." 
+            class="text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full dark:bg-darker-bg dark:text-light-text"
+          /> -->
         </div>
-        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
-        <Column field="customerName" header="Customer" style="min-width: 150px;" />
-        <Column field="total" header="Total" style="min-width: 100px;" />
-        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
-        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
-        <Column field="customerName" header="Customer" style="min-width: 150px;" />
-        <Column field="total" header="Total" style="min-width: 100px;" />
-        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
-        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
-        <Column field="customerName" header="Customer" style="min-width: 150px;" />
-        <Column field="total" header="Total" style="min-width: 100px;" />
-        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
-        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
-        <Column field="customerName" header="Customer" style="min-width: 150px;" />
-        <Column field="total" header="Total" style="min-width: 100px;" />
-        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
-        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
-        <Column field="customerName" header="Customer" style="min-width: 150px;" />
-        <Column field="total" header="Total" style="min-width: 100px;" />
-        <Column field="issueDate" header="Issued On" style="min-width: 150px;" />
-        <Column field="receiptNumber" header="Inventory" style="min-width: 150px;" />
-        <Column field="customerName" header="Customer" style="min-width: 150px;" />
-      </DataTable>
+        <div class="flex gap-x-2">
+          <button 
+            @click="exportCSV"
+            style="background-color: #4c5270; color: white; border-color: #4c5270;"
+            class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            <i class="text-xs md:text-base pi pi-external-link"></i> Export
+          </button>
+          <button 
+            @click="openCreateInventoryDrawer"
+            style="background-color: #4c5270; color: white; border-color: #4c5270;"
+            class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            <i class="text-xs md:text-base pi pi-plus"></i> Add 
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col h-[400px] md:h-[610px]">
+        <div class="overflow-x-auto">
+          <table class="min-w-full border border-gray-300 dark:border-gray-600 text-xs md:text-sm">
+            <thead class="bg-light-bg dark:bg-darker-bg">
+              <tr>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">S/N</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">INV ID</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRODUCT</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">CATEGORY</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRICE</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">COLOR</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SIZE</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">GRADE</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SWAP IN</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SERIAL NO</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SUPPLIER</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DATE IN</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DATE OUT</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                v-for="(receipt, index) in paginatedReceipts" 
+                :key="index" 
+                class="hover:bg-light-bg hover:dark:bg-dark-bg">
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">{{ receipt.receiptNumber }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.customerName }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ receipt.total.toFixed(2) }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.issueDate }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.receiptNumber }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.customerName }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ receipt.total.toFixed(2) }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.issueDate }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.receiptNumber }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.customerName }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ receipt.total.toFixed(2) }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.issueDate }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.receiptNumber }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
+                  <button class="text-blue-500 hover:text-blue-600">Edit</button>
+                  <button class="ml-2 text-red-500 hover:text-red-600">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex justify-between items-center mt-4">
+        <button 
+          @click="currentPage > 1 && (currentPage--)" :disabled="currentPage === 1"
+          class="bg-gray-200 dark:bg-gray-600 text-dark-text dark:text-light-text text-sm px-4 py-2 rounded shadow"
+        >
+          Previous
+        </button>
+        <span class="text-gray-600 dark:text-gray-300 text-xs md:text-sm">
+          Page {{ currentPage }} of {{ Math.ceil(receipts.length / itemsPerPage) }}
+        </span>
+        <button 
+          @click="currentPage * itemsPerPage < receipts.length && (currentPage++)"
+          :disabled="currentPage * itemsPerPage >= receipts.length"
+          class="bg-gray-200 dark:bg-gray-600 text-dark-text dark:text-light-text text-sm px-4 py-2 rounded shadow"
+        >
+          Next
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <style>
 :root {
-  --table-header-bg: #CDCFD9; /* Light cyan background for table header */
+  --table-header-bg: #CDCFD9;
   --table-row-bg: #ffffff;
   --table-border-color: #dcdcdc;
   --table-hover-bg: #f5f5f5;
-  --pagination-bg: #CDCFD9; /* Teal background for pagination */
-  --pagination-color: #201F2A; /* White text for pagination */
 }
 
 .dark {
-  --table-header-bg: #CDCFD9; /* Dark gray background for table header */
+  --table-header-bg: #4D4A63;
   --table-row-bg: #1e1e1e;
   --table-border-color: #555555;
   --table-hover-bg: #2c2c2c;
-  --pagination-bg: #004d40; /* Dark teal background for pagination */
-  --pagination-color: #ffffff; /* White text for pagination */
 }
 
-.p-datatable .p-datatable-thead > tr > th {
-  background-color: var(--table-header-bg);
-  color: var(--text-color, #000);
-  border-bottom: 1px solid var(--table-border-color);
-}
-
-.p-datatable .p-paginator {
-  background-color: var(--pagination-bg);
-  color: var(--pagination-color);
-  border-top: 1px solid var(--table-border-color);
-}
-
-.p-datatable .p-paginator .p-paginator-page,
-.p-datatable .p-paginator .p-paginator-prev,
-.p-datatable .p-paginator .p-paginator-next {
-  background-color: var(--pagination-bg);
-  color: var(--pagination-color);
-  border: none;
-}
-
-.p-datatable .p-paginator .p-paginator-page.p-highlight {
-  background-color: lighten(var(--pagination-bg), 10%);
-  color: var(--pagination-color);
-}
-
-.p-datatable .p-datatable-tbody > tr > td {
-  background-color: var(--table-row-bg);
-  color: var(--text-color, #000);
-  border-bottom: 1px solid var(--table-border-color);
-  white-space: nowrap; /* Prevent text wrapping */
-  text-overflow: ellipsis;
+.table-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
   overflow: hidden;
 }
 
-/* Webkit-based Browsers (Chrome, Edge, Safari) */
-::-webkit-scrollbar {
-  width: 10px; /* Scrollbar width */
-  height: 10px; /* Horizontal scrollbar height */
-}
-
-* {
-  scrollbar-color: #a0a0a0 #f3f3f3; /* Thumb color and track color */
-  scrollbar-width: thin; /* Thin scrollbar width */
+.pagination-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  background-color: var(--table-header-bg);
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--table-border-color);
 }
 </style>
