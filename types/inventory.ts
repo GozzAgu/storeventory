@@ -11,6 +11,6 @@ export type InventoryData = {
   serialNumber?: string;
   modeOfPayment: string;
   supplier: string;
-  dateAdded: Date;
-  dateUpdated?: Date;
+  dateIn: Date;
+  dateOut?: Date;
 };
