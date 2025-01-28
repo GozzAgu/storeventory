@@ -6,11 +6,12 @@ export type InventoryData = {
   price: number;
   color: string;
   size: string;
-  grade?: string;
-  swapIn?: string;
+  grade: string;
+  swapIn: string;
   serialNumber?: string;
-  modeOfPayment: string;
   supplier: string;
   dateIn: Date;
   dateOut?: Date;
+  isSold: boolean;
+  inventoryOf: string;
 };

@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { useInvStore } from '@/stores/inventory'; // Import the store
+import { useInvStore } from '@/stores/inventory';
 
+const authStore = useAuthStore();
+const store = useInvStore();
+const addDrawerVisible = ref(false);
+const isDarkMode = useState('isDarkMode');
+const currentPage = ref(1);
+const itemsPerPage = ref(30);
+const isAddingInventory= ref(false);
+const showCategoryDropdown = ref(false);
+
+type Category = { name: string };
 const product = ref({
   name: '',
   description: '',
-  category: '',
+  category: {} as Category,
   price: '',
   color: '',
   size: '',
@@ -13,13 +23,77 @@ const product = ref({
   serialNumber: '',
   supplier: '',
   dateIn: '',
-  dateOut: ''
+  dateOut: '',
+  isSold: false,
+  inventoryOf: authStore.currentUser?.id,
 });
 
-const store = useInvStore();
+const toggleCategoryDropdown = () => {
+  showCategoryDropdown.value = !showCategoryDropdown.value;
+};
+
+const selectedCategory = ref<Category | null>(null);
+
+const selectCategory = (category: Category | null) => {
+  selectedCategory.value = category;
+  showCategoryDropdown.value = false;
+};
+
+const filteredInventory = computed(() => {
+  if (!selectedCategory.value) {
+    return paginatedInventory.value;
+  }
+  return paginatedInventory.value.filter(item => item.category.name === selectedCategory.value?.name);
+});
+
+const categories = ref([
+  { name: 'Phones'},
+  { name: 'Laptops'},
+  { name: 'Home Appliances'},
+  { name: 'Clothing'},
+  { name: 'Others'},
+]);
+
+const swaps = ref([
+  { name: 'Yes'},
+  { name: 'No'},
+]);
+
+const grades = ref([
+  { name: 'New'},
+  { name: 'Used'},
+]);
+
+const duplicateInventory = (inventory: any) => {
+  product.value = {
+    name: `${inventory.name} (Duplicate)`,
+    description: inventory.description,
+    category: inventory.category,
+    price: inventory.price.toString(),
+    color: inventory.color,
+    size: inventory.size,
+    grade: inventory.grade,
+    swapIn: inventory.swapIn,
+    serialNumber: inventory.serialNumber,
+    supplier: inventory.supplier,
+    dateIn: inventory.dateIn,
+    dateOut: inventory.dateOut,
+    isSold: inventory.isSold,
+    inventoryOf: authStore.currentUser?.id,
+  };
+
+  addDrawerVisible.value = true;
+  product.value = { ...inventory, isSold: false };
+};
 
 const addInventory = async () => {
-  isAddingInventory.value = true; // Start loading
+  if (!authStore.currentUser?.id) {
+    console.error('User is not authenticated.');
+    alert('Please log in to add inventory items.');
+    return;
+  }
+
+  isAddingInventory.value = true;
   try {
     const newProduct = {
       name: product.value.name,
@@ -33,7 +107,9 @@ const addInventory = async () => {
       serialNumber: product.value.serialNumber,
       supplier: product.value.supplier,
       dateIn: 'today',
-      dateOut: 'today'
+      dateOut: 'today',
+      isSold: false,
+      inventoryOf: authStore.currentUser.id, // Use validated UID
     };
 
     await store.addInventoryItem(newProduct);
@@ -41,7 +117,7 @@ const addInventory = async () => {
     product.value = {
       name: '',
       description: '',
-      category: '',
+      category: { name: '' },
       price: '',
       color: '',
       size: '',
@@ -50,23 +126,18 @@ const addInventory = async () => {
       serialNumber: '',
       supplier: '',
       dateIn: '',
-      dateOut: ''
+      dateOut: '',
+      isSold: false,
+      inventoryOf: '',
     };
-
-    addDrawerVisible.value = false; // Close the drawer
+    await store.fetchInventory();
+    addDrawerVisible.value = false;
   } catch (error) {
     console.error('Error adding inventory:', error);
   } finally {
-    isAddingInventory.value = false; // End loading
+    isAddingInventory.value = false;
   }
 };
-
-const addDrawerVisible = ref(false);
-const isDarkMode = useState('isDarkMode');
-const currentPage = ref(1);
-const itemsPerPage = ref(30);
-const isAddingInventory= ref(false);
-// const searchQuery = ref('');
 
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
@@ -110,7 +181,11 @@ const exportCSV = () => {
 };
 
 onMounted(async() => {
+  if (authStore.currentUser) {
   await store.fetchInventory();
+} else {
+  console.error('No current user found');
+}
 });
 </script>
 
@@ -148,16 +223,21 @@ onMounted(async() => {
         </div>
         <div>
           <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Category</label>
-          <input 
-          id="name" 
-          v-model="product.category" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter category" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
+          <Select 
+            v-model="product.category"          
+            :options="categories"                
+            optionLabel="name"                  
+            placeholder="Select a Category"
+            :style="{
+              width: '100%',
+              height: '2.6rem',
+              padding: '0.2rem', 
+              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+              borderRadius: '0.375rem', 
+              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+              color: isDarkMode ? '#D1D5DB' : '#1F2937'
+            }"
+          />
         </div>
 
         <div>
@@ -165,7 +245,7 @@ onMounted(async() => {
           <input 
           id="name" 
           v-model="product.price" 
-          type="text" 
+          type="number" 
           class="w-full p-2 border border-gray-300 rounded-md" 
           placeholder="Enter price" required
           :class="[
@@ -202,30 +282,40 @@ onMounted(async() => {
         </div>
         <div>
           <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Grade</label>
-          <input 
-          id="name" 
-          v-model="product.grade" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter grade" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
+          <Select 
+            v-model="product.grade"          
+            :options="grades"                
+            optionLabel="name"                  
+            placeholder="Select a Grade"
+            :style="{
+              width: '100%',
+              height: '2.6rem',
+              padding: '0.2rem', 
+              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+              borderRadius: '0.375rem', 
+              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+              color: isDarkMode ? '#D1D5DB' : '#1F2937'
+            }"
+          />
         </div>
 
         <div>
           <label for="email" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Swap ?</label>
-          <input 
-          id="name" 
-          v-model="product.swapIn" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter swap" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
+          <Select 
+            v-model="product.swapIn"          
+            :options="swaps"                
+            optionLabel="name"                  
+            placeholder="Swap?"
+            :style="{
+              width: '100%',
+              height: '2.6rem',
+              padding: '0.2rem', 
+              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+              borderRadius: '0.375rem', 
+              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+              color: isDarkMode ? '#D1D5DB' : '#1F2937'
+            }"
+          />
         </div>
         <div>
           <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Serial No</label>
@@ -269,23 +359,17 @@ onMounted(async() => {
         </div>
       </form>
     </Drawer>
-    <!-- Header Section -->
+
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-sm md:text-2xl font-semibold">Inventory</h2>
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all products in inventory</p>
     </div>
 
     <!-- Table Section -->
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[770px]">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[680px]">
       <div class="flex justify-between items-center pb-4">
         <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Inventory</h3>
         <div class="flex justify-between items-center mb-4">
-          <!-- <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="Search by INV ID, Customer or Date..." 
-            class="text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full dark:bg-darker-bg dark:text-light-text"
-          /> -->
         </div>
         <div class="flex gap-x-2">
           <button 
@@ -303,9 +387,9 @@ onMounted(async() => {
         </div>
       </div>
 
-      <div class="flex flex-col h-[400px] md:h-[610px]">
+      <div class="flex flex-col h-[400px] md:h-[510px]">
         <div class="overflow-x-auto">
-          <div v-if="store.inventory.length === 0" class="flex flex-col items-center justify-center h-full space-y-4">
+          <div v-if="store.inventory.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-16 w-16 text-gray-400 dark:text-gray-500"
@@ -334,15 +418,24 @@ onMounted(async() => {
           <table v-else class="min-w-full border border-gray-300 dark:border-gray-600 text-xs md:text-sm">
             <thead class="bg-light-bg dark:bg-darker-bg">
               <tr>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">S/N</th>
+                <th class="text-left py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">S/N</th>
+                <th 
+                  class="text-left py-2 px-4 text-dark-text dark:text-light-text cursor-pointer whitespace-nowrap"
+                  @click="toggleCategoryDropdown"
+                >
+                  CATEGORY
+                  <!-- Category Dropdown Toggle -->
+                  <span v-if="showCategoryDropdown">▼</span>
+                  <span v-else>▲</span>
+                </th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">INV ID</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRODUCT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">CATEGORY</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRICE</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">COLOR</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SIZE</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">GRADE</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">AVAILABILITY</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SWAP IN</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SERIAL NO</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SUPPLIER</th>
@@ -350,28 +443,53 @@ onMounted(async() => {
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DATE OUT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap"></th>
               </tr>
+              <div v-if="showCategoryDropdown" class="absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-lg rounded-md mt-2 w-[200px] z-20">
+                <div 
+                  v-for="category in categories" 
+                  :key="category.name" 
+                  @click="selectCategory(category)"
+                  class="cursor-pointer px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                >
+                  {{ category.name }}
+                </div>
+                <div @click="selectCategory(null)" class="cursor-pointer px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded">
+                  Show All
+                </div>
+              </div>
             </thead>
             <tbody>
               <tr 
-                v-for="(inventory, index) in paginatedInventory" 
+                v-for="(inventory, index) in filteredInventory" 
                 :key="index" 
                 class="hover:bg-light-bg hover:dark:bg-dark-bg">
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">{{ inventory.id }}</td>
+                <td class="py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.category.name }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">INV-{{ inventory.id }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.description }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.category }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.price }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ inventory.price }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.color }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.size }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.grade }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.swapIn }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.grade.name }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap" 
+                    :class="{
+                      'text-green-500': !inventory.isSold, 
+                      'text-red-500': inventory.isSold
+                    }">
+                  {{ inventory.isSold ? 'Sold' : 'Available' }}
+                </td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.swapIn.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.serialNumber }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.supplier }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.dateIn }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.dateOut }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
-                  <button class="text-blue-500 hover:text-blue-600">Edit</button>
+                  <button 
+                    @click="duplicateInventory(inventory)" 
+                    class="text-blue-500 hover:text-blue-600"
+                  >
+                    Duplicate
+                  </button>
                   <button class="ml-2 text-red-500 hover:text-red-600">Delete</button>
                 </td>
               </tr>
@@ -402,37 +520,3 @@ onMounted(async() => {
     </div>
   </div>
 </template>
-
-<style>
-:root {
-  --table-header-bg: #CDCFD9;
-  --table-row-bg: #ffffff;
-  --table-border-color: #dcdcdc;
-  --table-hover-bg: #f5f5f5;
-}
-
-.dark {
-  --table-header-bg: #4D4A63;
-  --table-row-bg: #1e1e1e;
-  --table-border-color: #555555;
-  --table-hover-bg: #2c2c2c;
-}
-
-.table-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: space-between;
-  overflow: hidden;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  background-color: var(--table-header-bg);
-  padding: 0.5rem 1rem;
-  border-top: 1px solid var(--table-border-color);
-}
-</style>

@@ -110,7 +110,7 @@ const exportCSV = () => {
     <!-- Table Section -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[770px]">
       <div class="flex justify-between items-center pb-4">
-        <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Inventory</h3>
+        <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Receipts</h3>
         <div class="flex justify-between items-center mb-4">
           <!-- <input 
             type="text" 

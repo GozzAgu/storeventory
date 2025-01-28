@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { type InventoryData } from '@/types/inventory';
-import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, doc, onSnapshot, getDoc } from "firebase/firestore"
 
 export const useInvStore = defineStore('inventory', {
   state: () => ({
@@ -8,7 +8,6 @@ export const useInvStore = defineStore('inventory', {
   }),
 
   actions: {
-    // This function is updated to save to Firestore
     async addInventoryItem(item: InventoryData) {
       const nuxtApp = useNuxtApp()
       try {
@@ -20,25 +19,48 @@ export const useInvStore = defineStore('inventory', {
       }
     },
 
-    // Remove an item from the inventory
     async removeInventoryItem(id: string) {
       this.inventory = this.inventory.filter((item) => item.id !== id);
     },
 
     async fetchInventory() {
       const nuxtApp = useNuxtApp();
-      const inventoryCollection = collection(nuxtApp.$firestore, 'inventory');
-
-      try {
-        const querySnapshot = await getDocs(inventoryCollection);
-        this.inventory = querySnapshot.docs.map((doc) => ({
-          id: doc.id, // Assign Firestore document ID
-          ...doc.data(),
-        })) as InventoryData[];
-        console.log('Inventory fetched successfully:', this.inventory);
-      } catch (e) {
-        console.error('Error fetching inventory:', e);
-      }
-    },
+      const authStore = useAuthStore();
+    
+      if (!authStore.currentUser) return;
+    
+      const inventoriesCollection = collection(nuxtApp.$firestore, "inventory");
+      onSnapshot(inventoriesCollection, async (snapshot) => {
+        this.inventory = []; // Clear the state
+    
+        const currentUser = authStore.currentUser;
+    
+        if (authStore.currentUser?.accountType === 'SuperAdmin') {
+          snapshot.forEach((doc) => {
+            const inventoryData = { ...doc.data(), id: doc.id } as InventoryData;
+            if (inventoryData.inventoryOf === authStore.currentUser?.id) {
+              this.inventory.push(inventoryData);
+            }
+          });
+        } else if (authStore.currentUser?.accountType === 'Admin' || authStore.currentUser?.accountType === 'User') {
+          const managerDocRef = doc(nuxtApp.$firestore, 'users', authStore.currentUser?.adminId);
+          const managerDocSnapshot = await getDoc(managerDocRef);
+          const adminId = managerDocSnapshot.data()?.id;
+    
+          if (!adminId) return;
+    
+          snapshot.forEach((doc) => {
+            const inventoryData = { ...doc.data(), id: doc.id } as InventoryData;
+            if (
+              inventoryData.inventoryOf === authStore.currentUser?.uid ||
+              inventoryData.inventoryOf === adminId
+            ) {
+              this.inventory.push(inventoryData);
+            }
+          });
+        }
+      });
+    }
+    
   },
 });
