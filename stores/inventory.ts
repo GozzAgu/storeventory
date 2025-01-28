@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { type InventoryData } from '@/types/inventory';
-import { collection, addDoc, doc, onSnapshot, getDoc } from "firebase/firestore"
+import { collection, addDoc, doc, onSnapshot, getDoc, deleteDoc } from "firebase/firestore"
 
 export const useInvStore = defineStore('inventory', {
   state: () => ({
@@ -20,7 +20,8 @@ export const useInvStore = defineStore('inventory', {
     },
 
     async removeInventoryItem(id: string) {
-      this.inventory = this.inventory.filter((item) => item.id !== id);
+      const nuxtApp = useNuxtApp()
+      await deleteDoc(doc(nuxtApp.$firestore, "inventory", id))
     },
 
     async fetchInventory() {

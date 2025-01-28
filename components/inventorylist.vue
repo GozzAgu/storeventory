@@ -9,6 +9,12 @@ const currentPage = ref(1);
 const itemsPerPage = ref(30);
 const isAddingInventory= ref(false);
 const showCategoryDropdown = ref(false);
+const deleteDialogVisible = ref(false);
+const itemToDelete = ref(null);
+
+const dialogBackgroundColor = computed(() =>
+  isDarkMode.value ? '#201F2A' : '#FFFFFF'
+);
 
 type Category = { name: string };
 const product = ref({
@@ -84,6 +90,20 @@ const duplicateInventory = (inventory: any) => {
 
   addDrawerVisible.value = true;
   product.value = { ...inventory, isSold: false };
+};
+
+const deleteInventory = (inventory: any) => {
+  store.removeInventoryItem(inventory.id);
+};
+
+const openDeleteDialog = (inventory: any) => {
+  itemToDelete.value = inventory;
+  deleteDialogVisible.value = true;
+};
+
+const closeDeleteDialog = () => {
+  deleteDialogVisible.value = false;
+  itemToDelete.value = null;
 };
 
 const addInventory = async () => {
@@ -191,6 +211,38 @@ onMounted(async() => {
 
 <template>
   <div class="space-y-8 md:p-6 max-w-full mx-auto">
+    <Dialog 
+      v-model:visible="deleteDialogVisible" 
+      :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
+      :modal="true"
+      :closable="false"
+      :draggable="false"
+      class="custom-dialog"
+    >
+      <template #header>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Confirm Deletion</h3>
+      </template>
+
+      <p class="text-gray-600 dark:text-gray-400 mt-4 text-xs md:text-base">
+        Are you sure you want to delete <span class="font-semibold">{{ itemToDelete?.name }}</span>?
+        This action cannot be undone.
+      </p>
+
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
+          @click="closeDeleteDialog"
+        >
+          Cancel
+        </button>
+        <button
+          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all text-xs md:text-base"
+          @click="deleteInventory(itemToDelete)"
+        >
+          Delete
+        </button>
+      </div>
+    </Dialog>
     <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
       <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Inventory</h3>
       <form @submit.prevent="addInventory" class="space-y-4 mt-4">
@@ -490,7 +542,7 @@ onMounted(async() => {
                   >
                     Duplicate
                   </button>
-                  <button class="ml-2 text-red-500 hover:text-red-600">Delete</button>
+                  <button @click="openDeleteDialog(inventory)" class="ml-2 text-red-500 hover:text-red-600">Delete</button>
                 </td>
               </tr>
             </tbody>
