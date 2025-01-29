@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useInvStore } from '@/stores/inventory';
+import type { InventoryData } from '~/types/inventory';
 
 const authStore = useAuthStore();
 const store = useInvStore();
@@ -132,7 +133,7 @@ const addInventory = async () => {
       inventoryOf: authStore.currentUser.id, // Use validated UID
     };
 
-    await store.addInventoryItem(newProduct);
+    await store.addInventoryItem(newProduct as any);
 
     product.value = {
       name: '',

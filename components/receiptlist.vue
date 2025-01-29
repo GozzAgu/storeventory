@@ -1,235 +1,285 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useReceiptStore } from '@/stores/receipt';
+import { ref, computed, onMounted } from 'vue';
 
-const receipts = ref([
-  { receiptNumber: 'INV001', customerName: 'John Doe Samuel Smith', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe Samuel Smith', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV001', customerName: 'John Doe', total: 150.5, issueDate: new Date().toLocaleDateString() },
-  { receiptNumber: 'INV002', customerName: 'Jane Smith', total: 200.0, issueDate: new Date().toLocaleDateString() }
-]);
+const authStore = useAuthStore();
+const store = useReceiptStore();
 const addDrawerVisible = ref(false);
 const isDarkMode = useState('isDarkMode');
 const currentPage = ref(1);
 const itemsPerPage = ref(30);
-const searchQuery = ref('');
+const isAddingReceipt = ref(false);
+const deleteDialogVisible = ref(false);
+const receiptToDelete = ref(null);
+
+const openCreateReceiptDrawer = () => {
+  addDrawerVisible.value = true;
+};
+
+const dialogBackgroundColor = computed(() =>
+  isDarkMode.value ? '#201F2A' : '#FFFFFF'
+);
+
+const receipt = ref({
+  name: '',
+  description: '',
+  amount: '',
+  customer: '',
+  date: '',
+  swap: false,
+  paidVia: '',
+  serialNumber: '',
+  receiptNumber: '',
+  issuedBy: authStore.currentUser?.id,
+  receiptOf: '',
+});
+
+const deleteReceipt = (receipt: any) => {
+  // store.removeReceiptItem(receipt.id);
+};
+
+const closeDeleteDialog = () => {
+  deleteDialogVisible.value = false;
+  receiptToDelete.value = null;
+};
+
+const addReceipt = async () => {
+  if (!authStore.currentUser?.id) {
+    console.error('User is not authenticated.');
+    alert('Please log in to add receipts.');
+    return;
+  }
+
+  isAddingReceipt.value = true;
+  try {
+    const newReceipt = {
+      name: receipt.value.name,
+      description: receipt.value.description,
+      amount: parseFloat(receipt.value.amount),
+      customer: receipt.value.customer,
+      date: receipt.value.date,
+      swap: receipt.value.swap,
+      paidVia: receipt.value.paidVia,
+      receiptNumber: receipt.value.receiptNumber,
+      issuedBy: authStore.currentUser.id,
+    };
+
+    await store.addReceipt(newReceipt as any);
+
+    receipt.value = {
+      name: '',
+      description: '',
+      amount: '',
+      customer: '',
+      date: '',
+      swap: false,
+      paidVia: '',
+      serialNumber: '',
+      receiptNumber: '',
+      issuedBy: authStore.currentUser?.id,
+      receiptOf: '',
+    };
+    // await store.fetchReceipts();
+    addDrawerVisible.value = false;
+  } catch (error) {
+    console.error('Error adding receipt:', error);
+  } finally {
+    isAddingReceipt.value = false;
+  }
+};
 
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
 });
 
-const calculateIndex = (index: any) => {
-  return (currentPage.value - 1) * itemsPerPage.value + index + 1;
-};
-
-const paginatedReceipts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return receipts.value.slice(start, end);
+onMounted(async () => {
+  if (authStore.currentUser) {
+    // await store.fetchReceipts();
+    if (!store.receipts) {
+      store.receipts = []; // Ensure it's an array
+    }
+  } else {
+    console.error('No current user found');
+  }
 });
 
-const openCreateInventoryDrawer = () => {
-  addDrawerVisible.value = true;
-};
-
-const exportCSV = () => {
-  const csvContent = [
-    ['INV ID', 'Customer', 'Total', 'Issued On'], 
-    ...receipts.value.map(receipt => [
-      receipt.receiptNumber,
-      receipt.customerName,
-      receipt.total.toFixed(2),
-      receipt.issueDate
-    ])
-  ]
-    .map(row => row.join(','))
-    .join('\n');
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'receipts.csv');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 </script>
 
 <template>
   <div class="space-y-8 md:p-6 max-w-full mx-auto">
-    <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
-      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Generate a Receipt</h3>
-      <form @submit.prevent="" class="space-y-4 mt-4">
+    <Dialog 
+      v-model:visible="deleteDialogVisible" 
+      :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
+      :modal="true"
+      :closable="false"
+      :draggable="false"
+      class="custom-dialog"
+    >
+      <template #header>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Confirm Deletion</h3>
+      </template>
 
+      <p class="text-gray-600 dark:text-gray-400 mt-4 text-xs md:text-base">
+        Are you sure you want to delete receipt <span class="font-semibold">{{ receiptToDelete }}</span>?
+        This action cannot be undone.
+      </p>
+
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
+          @click="closeDeleteDialog"
+        >
+          Cancel
+        </button>
+        <button
+          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all text-xs md:text-base"
+          @click="deleteReceipt(receiptToDelete)"
+        >
+          Delete
+        </button>
+      </div>
+    </Dialog>
+
+    <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
+      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Receipt</h3>
+      <form @submit.prevent="addReceipt" class="space-y-4 mt-4">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Receipt Name</label>
+          <input 
+            id="name" 
+            v-model="receipt.name" 
+            type="text" 
+            class="w-full p-2 border border-gray-300 rounded-md" 
+            placeholder="Enter receipt name" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+          />
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
+          <input 
+            id="description" 
+            v-model="receipt.description" 
+            type="text" 
+            class="w-full p-2 border border-gray-300 rounded-md" 
+            placeholder="Enter description" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+          />
+        </div>
+
+        <div>
+          <label for="customer" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Customer</label>
+          <input 
+            id="customer" 
+            v-model="receipt.customer" 
+            type="text" 
+            class="w-full p-2 border border-gray-300 rounded-md" 
+            placeholder="Enter customer name" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+          />
+        </div>
+
+        <div>
+          <label for="amount" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Amount</label>
+          <input 
+            id="amount" 
+            v-model="receipt.amount" 
+            type="number" 
+            class="w-full p-2 border border-gray-300 rounded-md" 
+            placeholder="Enter amount" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+          />
+        </div>
+
+        <div>
+          <label for="receiptNumber" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Receipt Number</label>
+          <input 
+            id="receiptNumber" 
+            v-model="receipt.receiptNumber" 
+            type="text" 
+            class="w-full p-2 border border-gray-300 rounded-md" 
+            placeholder="Enter receipt number" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+          />
+        </div>
+
+        <div class="flex justify-end gap-4 mt-6">
+          <button type="button" @click="addDrawerVisible = false" class="text-gray-500 hover:text-gray-600 -mt-2">Cancel</button>
+          <button
+            type="submit"
+            :disabled="isAddingReceipt"
+            class="p-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
+            style="background-color: #4c5270; color: white; border-color: #4c5270;"
+          >
+            <i v-if="isAddingReceipt" class="pi pi-spin pi-spinner"></i>
+            {{ isAddingReceipt ? 'Adding...' : 'Add Receipt' }}
+          </button>
+        </div>
       </form>
     </Drawer>
-    <!-- Header Section -->
+
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
       <h2 class="text-sm md:text-2xl font-semibold">Receipts</h2>
-      <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all your receipts</p>
+      <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all receipts</p>
     </div>
 
-    <!-- Table Section -->
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[770px]">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[680px]">
       <div class="flex justify-between items-center pb-4">
         <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Receipts</h3>
         <div class="flex justify-between items-center mb-4">
-          <!-- <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="Search by INV ID, Customer or Date..." 
-            class="text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full dark:bg-darker-bg dark:text-light-text"
-          /> -->
         </div>
         <div class="flex gap-x-2">
           <button 
-            @click="openCreateInventoryDrawer"
+            @click="openCreateReceiptDrawer"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
             class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
             <i class="text-xs md:text-base pi pi-plus"></i> Generate Receipt 
           </button>
         </div>
       </div>
-
-      <div class="flex flex-col h-[400px] md:h-[610px]">
+  
+      <div class="flex flex-col h-[400px] md:h-[510px]">
         <div class="overflow-x-auto">
-          <table class="min-w-full border border-gray-300 dark:border-gray-600 text-xs md:text-sm">
-            <thead class="bg-light-bg dark:bg-darker-bg">
-              <tr>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">S/N</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">RECEIPT ID</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRODUCT</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">CATEGORY</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRICE</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">MODE OF PAYMENT</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">COLOR</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SIZE</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">GRADE</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SWAP IN</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SERIAL NO</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DATE</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr 
-                v-for="(receipt, index) in paginatedReceipts" 
-                :key="index" 
-                class="hover:bg-light-bg hover:dark:bg-dark-bg">
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">{{ receipt.receiptNumber }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.customerName }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ receipt.total.toFixed(2) }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.issueDate }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.receiptNumber }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.receiptNumber }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.customerName }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ receipt.total.toFixed(2) }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.issueDate }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.issueDate }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.receiptNumber }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
-                  <button class="text-blue-500 hover:text-blue-600">Edit</button>
-                  <button class="ml-2 text-red-500 hover:text-red-600">Delete</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+          <div v-if="store.receipts.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-16 w-16 text-gray-400 dark:text-gray-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 10h11M9 21H3a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v7m-5 9l5-5m0 0l-5-5m5 5H9"
+              />
+            </svg>
+            <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base">
+              No inventory data available. Add new items to get started.
+            </p>
+            <button 
+              @click="openCreateReceiptDrawer"
+              style="background-color: #4c5270; color: white; border-color: #4c5270;"
+              class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all duration-300">
+              <i class="text-xs md:text-base pi pi-plus"></i> Add 
+            </button>
+          </div>
 
-      <!-- Pagination -->
-      <div class="flex justify-between items-center mt-4">
-        <button 
-          @click="currentPage > 1 && (currentPage--)" :disabled="currentPage === 1"
-          class="bg-gray-200 dark:bg-gray-600 text-dark-text dark:text-light-text text-sm px-4 py-2 rounded shadow"
-        >
-          Previous
-        </button>
-        <span class="text-gray-600 dark:text-gray-300 text-xs md:text-sm">
-          Page {{ currentPage }} of {{ Math.ceil(receipts.length / itemsPerPage) }}
-        </span>
-        <button 
-          @click="currentPage * itemsPerPage < receipts.length && (currentPage++)"
-          :disabled="currentPage * itemsPerPage >= receipts.length"
-          class="bg-gray-200 dark:bg-gray-600 text-dark-text dark:text-light-text text-sm px-4 py-2 rounded shadow"
-        >
-          Next
-        </button>
+          <div v-else></div>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
-<style>
-:root {
-  --table-header-bg: #CDCFD9;
-  --table-row-bg: #ffffff;
-  --table-border-color: #dcdcdc;
-  --table-hover-bg: #f5f5f5;
-}
-
-.dark {
-  --table-header-bg: #4D4A63;
-  --table-row-bg: #1e1e1e;
-  --table-border-color: #555555;
-  --table-hover-bg: #2c2c2c;
-}
-
-.table-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: space-between;
-  overflow: hidden;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  background-color: var(--table-header-bg);
-  padding: 0.5rem 1rem;
-  border-top: 1px solid var(--table-border-color);
-}
-</style>
