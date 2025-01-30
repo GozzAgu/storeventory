@@ -36,50 +36,48 @@ export const useReceiptStore = defineStore('receipts', {
     //   }
     // },
     
-    // async fetchInventory() {
-    //   const nuxtApp = useNuxtApp();
-    //   const authStore = useAuthStore();
+    async fetchReceipts() {
+      const nuxtApp = useNuxtApp();
+      const authStore = useAuthStore();
     
-    //   if (!authStore.currentUser) {
-    //     console.warn("No user is logged in. Cannot fetch inventory.");
-    //     return;
-    //   }
+      if (!authStore.currentUser) {
+        console.warn("No user is logged in. Cannot fetch inventory.");
+        return;
+      }
     
-    //   const inventoriesCollection = collection(nuxtApp.$firestore, "inventory");
-    //   onSnapshot(inventoriesCollection, async (snapshot) => {
-    //     this.inventory = []; // Clear the state
+      const receiptsCollection = collection(nuxtApp.$firestore, "receipts");
+      onSnapshot(receiptsCollection, async (snapshot) => {
+        this.receipts = [];
     
-    //     const currentUser = authStore.currentUser;
+        if (authStore.currentUser?.accountType === "SuperAdmin") {
+          snapshot.forEach((doc) => {
+            const receiptData = { ...doc.data(), id: doc.id } as ReceiptData;
+            if (receiptData.receiptOf === authStore.currentUser?.id) {
+              this.receipts.push(receiptData);
+            }
+          });
+        } else if (authStore.currentUser?.accountType === "Admin" || authStore.currentUser?.accountType === "User") {
+          const managerDocRef = doc(nuxtApp.$firestore, "users", authStore.currentUser?.adminId || "");
+          const managerDocSnapshot = await getDoc(managerDocRef);
     
-    //     if (authStore.currentUser?.accountType === "SuperAdmin") {
-    //       snapshot.forEach((doc) => {
-    //         const inventoryData = { ...doc.data(), id: doc.id } as InventoryData;
-    //         if (inventoryData.inventoryOf === authStore.currentUser?.id) {
-    //           this.inventory.push(inventoryData);
-    //         }
-    //       });
-    //     } else if (authStore.currentUser?.accountType === "Admin" || authStore.currentUser?.accountType === "User") {
-    //       const managerDocRef = doc(nuxtApp.$firestore, "users", authStore.currentUser?.adminId || "");
-    //       const managerDocSnapshot = await getDoc(managerDocRef);
+          const adminId = managerDocSnapshot.data()?.id;
     
-    //       const adminId = managerDocSnapshot.data()?.id;
+          if (!adminId) {
+            console.warn("Admin ID not found for the current user.");
+            return;
+          }
     
-    //       if (!adminId) {
-    //         console.warn("Admin ID not found for the current user.");
-    //         return;
-    //       }
-    
-    //       snapshot.forEach((doc) => {
-    //         const inventoryData = { ...doc.data(), id: doc.id } as InventoryData;
-    //         if (
-    //           inventoryData.inventoryOf === authStore.currentUser?.uid ||
-    //           inventoryData.inventoryOf === adminId
-    //         ) {
-    //           this.inventory.push(inventoryData);
-    //         }
-    //       });
-    //     }
-    //   });
-    // },
+          snapshot.forEach((doc) => {
+            const receiptData = { ...doc.data(), id: doc.id } as ReceiptData;
+            if (
+              receiptData.receiptOf === authStore.currentUser?.uid ||
+              receiptData.receiptOf === adminId
+            ) {
+              this.receipts.push(receiptData);
+            }
+          });
+        }
+      });
+    },
   },
 });

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { type InventoryData } from '@/types/inventory';
-import { collection, addDoc, doc, onSnapshot, getDoc, deleteDoc } from "firebase/firestore"
+import { collection, addDoc, doc, onSnapshot, getDoc, deleteDoc } from "firebase/firestore";
 
 export const useInvStore = defineStore('inventory', {
   state: () => ({
@@ -48,8 +48,6 @@ export const useInvStore = defineStore('inventory', {
       const inventoriesCollection = collection(nuxtApp.$firestore, "inventory");
       onSnapshot(inventoriesCollection, async (snapshot) => {
         this.inventory = []; // Clear the state
-    
-        const currentUser = authStore.currentUser;
     
         if (authStore.currentUser?.accountType === "SuperAdmin") {
           snapshot.forEach((doc) => {
