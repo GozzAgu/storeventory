@@ -19,22 +19,22 @@ export const useReceiptStore = defineStore('receipts', {
       }
     },
 
-    // async removeInventoryItem(id: string) {
-    //   const nuxtApp = useNuxtApp();
+    async removeReceiptItem(id: string) {
+      const nuxtApp = useNuxtApp();
     
-    //   if (!id) {
-    //     console.error("Invalid ID provided for removal");
-    //     return;
-    //   }
+      if (!id) {
+        console.error("Invalid ID provided for removal");
+        return;
+      }
     
-    //   try {
-    //     const docRef = doc(nuxtApp.$firestore, "inventory", id);
-    //     await deleteDoc(docRef);
-    //     console.log(`Document with ID ${id} has been deleted`);
-    //   } catch (error) {
-    //     console.error("Error deleting document: ", error);
-    //   }
-    // },
+      try {
+        const docRef = doc(nuxtApp.$firestore, "receipts", id);
+        await deleteDoc(docRef);
+        console.log(`Document with ID ${id} has been deleted`);
+      } catch (error) {
+        console.error("Error deleting document: ", error);
+      }
+    },
     
     async fetchReceipts() {
       const nuxtApp = useNuxtApp();

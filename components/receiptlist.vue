@@ -73,11 +73,12 @@ const toggleCategoryDropdown = () => {
 };
 
 const deleteReceipt = (receipt: any) => {
-  // store.removeReceiptItem(receipt.id);
+  store.removeReceiptItem(receipt.id);
+  closeDeleteDialog();
 };
 
-const openDeleteDialog = (inventory: any) => {
-  itemToDelete.value = inventory;
+const openDeleteDialog = (receipt: any) => {
+  itemToDelete.value = receipt;
   deleteDialogVisible.value = true;
 };
 
@@ -96,7 +97,7 @@ const addReceipt = async () => {
   isAddingReceipt.value = true;
   try {
     let inventoryDetails: any = {};
-    let inventoryDocId: string | null = null; // To store the Firestore document ID of the inventory item
+    let inventoryDocId: string | null = null;
 
     if (receipt.value.serialNumber) {
       const inventoryRef = collection(nuxtApp.$firestore, "inventory");
@@ -269,7 +270,7 @@ onMounted(async () => {
         </button>
         <button
           class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:shadow-lg hover:bg-red-600 transition-all text-xs md:text-base"
-          @click="deleteReceipt(receiptToDelete)"
+          @click="deleteReceipt(itemToDelete)"
         >
           Delete
         </button>
@@ -472,7 +473,7 @@ onMounted(async () => {
             </thead>
             <tbody>
               <tr 
-                v-for="(receipt, index) in filteredReceipts" 
+                v-for="(receipt, index) in filteredReceipts"
                 :key="index" 
                 class="hover:bg-light-bg hover:dark:bg-dark-bg">
                 <td class="py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
