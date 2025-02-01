@@ -39,19 +39,25 @@ const toggleCategoryDropdown = () => {
   showCategoryDropdown.value = !showCategoryDropdown.value;
 };
 
-const selectedCategory = ref<Category | null>(null);
-
-const selectCategory = (category: Category | null) => {
-  selectedCategory.value = category;
-  showCategoryDropdown.value = false;
-};
-
 const filteredInventory = computed(() => {
   if (!selectedCategory.value) {
     return paginatedInventory.value;
   }
   return paginatedInventory.value.filter(item => item.category.name === selectedCategory.value?.name);
 });
+
+const paginatedInventory = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return store.inventory.slice(start, end);
+});
+
+const selectedCategory = ref<Category | null>(null);
+
+const selectCategory = (category: Category | null) => {
+  selectedCategory.value = category;
+  showCategoryDropdown.value = false;
+};
 
 const categories = ref([
   { name: 'Phones'},
@@ -72,8 +78,15 @@ const grades = ref([
 ]);
 
 const duplicateInventory = (inventory: any) => {
+  const serialExists = store.inventory.some(item => item.serialNumber === product.value.serialNumber);
+  
+  if (serialExists) {
+    alert('An inventory item with this serial number already exists.');
+    return;
+  }
+
   product.value = {
-    name: `${inventory.name} (Duplicate)`,
+    name: `${inventory.name}`,
     description: inventory.description,
     category: inventory.category,
     price: inventory.price.toString(),
@@ -90,11 +103,11 @@ const duplicateInventory = (inventory: any) => {
   };
 
   addDrawerVisible.value = true;
-  product.value = { ...inventory, isSold: false };
 };
 
 const deleteInventory = (inventory: any) => {
   store.removeInventoryItem(inventory.id);
+  closeDeleteDialog();
 };
 
 const openDeleteDialog = (inventory: any) => {
@@ -114,6 +127,14 @@ const addInventory = async () => {
     return;
   }
 
+  // Check if serial number already exists
+  const serialExists = store.inventory.some(item => item.serialNumber === product.value.serialNumber);
+  
+  if (serialExists) {
+    alert('An inventory item with this serial number already exists.');
+    return;
+  }
+
   isAddingInventory.value = true;
   try {
     const newProduct = {
@@ -130,11 +151,12 @@ const addInventory = async () => {
       dateIn: 'today',
       dateOut: 'today',
       isSold: false,
-      inventoryOf: authStore.currentUser.id, // Use validated UID
+      inventoryOf: authStore.currentUser.id,
     };
 
     await store.addInventoryItem(newProduct as any);
-
+    
+    // Reset the form after adding successfully
     product.value = {
       name: '',
       description: '',
@@ -151,6 +173,7 @@ const addInventory = async () => {
       isSold: false,
       inventoryOf: '',
     };
+
     await store.fetchInventory();
     addDrawerVisible.value = false;
   } catch (error) {
@@ -160,6 +183,59 @@ const addInventory = async () => {
   }
 };
 
+// const addInventory = async () => {
+//   if (!authStore.currentUser?.id) {
+//     console.error('User is not authenticated.');
+//     alert('Please log in to add inventory items.');
+//     return;
+//   }
+
+//   isAddingInventory.value = true;
+//   try {
+//     const newProduct = {
+//       name: product.value.name,
+//       description: product.value.description,
+//       category: product.value.category,
+//       price: parseFloat(product.value.price),
+//       color: product.value.color,
+//       size: product.value.size,
+//       grade: product.value.grade,
+//       swapIn: product.value.swapIn,
+//       serialNumber: product.value.serialNumber,
+//       supplier: product.value.supplier,
+//       dateIn: 'today',
+//       dateOut: 'today',
+//       isSold: false,
+//       inventoryOf: authStore.currentUser.id, // Use validated UID
+//     };
+
+//     await store.addInventoryItem(newProduct as any);
+
+//     product.value = {
+//       name: '',
+//       description: '',
+//       category: { name: '' },
+//       price: '',
+//       color: '',
+//       size: '',
+//       grade: '',
+//       swapIn: '',
+//       serialNumber: '',
+//       supplier: '',
+//       dateIn: '',
+//       dateOut: '',
+//       isSold: false,
+//       inventoryOf: '',
+//     };
+//     await store.fetchInventory();
+//     addDrawerVisible.value = false;
+//   } catch (error) {
+//     console.error('Error adding inventory:', error);
+//   } finally {
+//     isAddingInventory.value = false;
+//   }
+// };
+
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
 });
@@ -167,12 +243,6 @@ const drawerBackgroundColor = computed(() => {
 const calculateIndex = (index: any) => {
   return (currentPage.value - 1) * itemsPerPage.value + index + 1;
 };
-
-const paginatedInventory = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return store.inventory.slice(start, end);
-});
 
 const openCreateInventoryDrawer = () => {
   addDrawerVisible.value = true;

@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useReceiptStore } from '@/stores/receipt';
 import { useInvStore } from '@/stores/inventory';
 import { ref, computed, onMounted } from 'vue';
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, doc, updateDoc } from "firebase/firestore";
 
 const authStore = useAuthStore();
 const store = useReceiptStore();
@@ -88,101 +88,123 @@ const closeDeleteDialog = () => {
 
 const addReceipt = async () => {
   if (!authStore.currentUser?.id) {
-    console.error('User is not authenticated.');
-    alert('Please log in to add receipts.');
+    console.error("User is not authenticated.");
+    alert("Please log in to add receipts.");
     return;
   }
 
   isAddingReceipt.value = true;
   try {
-    let inventoryDetails = {};
+    let inventoryDetails: any = {};
+    let inventoryDocId: string | null = null; // To store the Firestore document ID of the inventory item
 
     if (receipt.value.serialNumber) {
-      const inventoryRef = collection(nuxtApp.$firestore, 'inventory');
-      const q = query(inventoryRef, where('serialNumber', '==', receipt.value.serialNumber));
+      const inventoryRef = collection(nuxtApp.$firestore, "inventory");
+      const q = query(inventoryRef, where("serialNumber", "==", receipt.value.serialNumber));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        inventoryDetails = querySnapshot.docs[0].data();
+        const docSnap = querySnapshot.docs[0];
+        inventoryDetails = docSnap.data();
+        inventoryDocId = docSnap.id; // Store the document ID
       } else {
-        console.warn('No inventory found for serial number:', receipt.value.serialNumber);
-        alert('No inventory found for the entered serial number.');
+        console.warn("No inventory found for serial number:", receipt.value.serialNumber);
+        alert("No inventory found for the entered serial number.");
+        return;
       }
     }
 
     const receiptOwner = authStore.currentUser?.adminId ?? authStore.currentUser.id;
 
-    const updatedReceipt = {
-      name: inventoryDetails.name,
-      description: inventoryDetails.description,
+    const newReceipt = {
+      name: inventoryDetails.name || receipt.value.name,
+      description: inventoryDetails.description || receipt.value.description,
       amount: receipt.value.amount,
       customer: receipt.value.customer,
       customerEmail: receipt.value.customerEmail,
       customerNumber: receipt.value.customerNumber,
-      category: inventoryDetails.category,
-      color: inventoryDetails.color,
-      size: inventoryDetails.size,
+      category: inventoryDetails.category || receipt.value.category,
+      color: inventoryDetails.color || receipt.value.color,
+      size: inventoryDetails.size || receipt.value.size,
       date: receipt.value.date,
-      swap: inventoryDetails.swapIn,
+      swap: inventoryDetails.swapIn || false,
       paidVia: receipt.value.paidVia,
-      serialNumber: inventoryDetails.serialNumber,
-      receiptNumber: receipt.value.receiptNumber,
+      serialNumber: inventoryDetails.serialNumber || receipt.value.serialNumber,
       issuedBy: authStore.currentUser.email,
       receiptOf: receiptOwner,
+      receiptNumber: "",
     };
 
-    await store.addReceipt(updatedReceipt as any);
-    await store.fetchReceipts();
+    // Add the receipt to Firestore
+    const receiptsCollection = collection(nuxtApp.$firestore, "receipts");
+    const docRef = await addDoc(receiptsCollection, newReceipt);
 
+    // Update the receipt with its own ID as the receipt number
+    await updateDoc(doc(docRef.firestore, "receipts", docRef.id), {
+      receiptNumber: docRef.id,
+    });
+
+    // If an inventory item was found, mark it as sold
+    if (inventoryDocId) {
+      const inventoryItemRef = doc(nuxtApp.$firestore, "inventory", inventoryDocId);
+      await updateDoc(inventoryItemRef, { isSold: true });
+    }
+
+    // Refresh store data
+    await store.fetchReceipts();
+    await invStore.fetchInventory();
+
+    // Reset receipt form
     receipt.value = {
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       amount: 0,
-      category: '',
-      customer: '',
-      customerEmail: '',
-      customerNumber: '',
-      color: '',
-      size: '',
-      date: '',
+      category: "",
+      customer: "",
+      customerEmail: "",
+      customerNumber: "",
+      color: "",
+      size: "",
+      date: "",
       swap: false,
-      paidVia: '',
-      serialNumber: '',
-      receiptNumber: '',
+      paidVia: "",
+      serialNumber: "",
+      receiptNumber: "",
       issuedBy: authStore.currentUser?.id,
-      receiptOf: '',
+      receiptOf: "",
     };
 
     addDrawerVisible.value = false;
   } catch (error) {
-    console.error('Error adding receipt:', error);
-    alert('Failed to add receipt. Please try again.');
+    console.error("Error adding receipt:", error);
+    alert("Failed to add receipt. Please try again.");
   } finally {
     isAddingReceipt.value = false;
   }
 };
 
-const duplicateInventory = (inventory: any) => {
-  receipt.value = {
-    name: `${inventory.name} (Duplicate)`,
-    description: inventory.description,
-    category: inventory.category,
-    price: inventory.price.toString(),
-    color: inventory.color,
-    size: inventory.size,
-    grade: inventory.grade,
-    swapIn: inventory.swapIn,
-    serialNumber: inventory.serialNumber,
-    supplier: inventory.supplier,
-    dateIn: inventory.dateIn,
-    dateOut: inventory.dateOut,
-    isSold: inventory.isSold,
-    inventoryOf: authStore.currentUser?.id,
-  };
 
-  addDrawerVisible.value = true;
-  receipt.value = { ...inventory, isSold: false };
-};
+// const duplicateInventory = (inventory: any) => {
+//   receipt.value = {
+//     name: `${inventory.name} (Duplicate)`,
+//     description: inventory.description,
+//     category: inventory.category,
+//     price: inventory.price.toString(),
+//     color: inventory.color,
+//     size: inventory.size,
+//     grade: inventory.grade,
+//     swapIn: inventory.swapIn,
+//     serialNumber: inventory.serialNumber,
+//     supplier: inventory.supplier,
+//     dateIn: inventory.dateIn,
+//     dateOut: inventory.dateOut,
+//     isSold: inventory.isSold,
+//     inventoryOf: authStore.currentUser?.id,
+//   };
+
+//   addDrawerVisible.value = true;
+//   receipt.value = { ...inventory, isSold: false };
+// };
 
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
@@ -399,7 +421,7 @@ onMounted(async () => {
               />
             </svg>
             <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-              No inventory data available. Add new items to get started.
+              No receopt data available. Add new items to get started.
             </p>
             <button 
               @click="openCreateReceiptDrawer"
@@ -418,7 +440,6 @@ onMounted(async () => {
                   @click="toggleCategoryDropdown"
                 >
                   CATEGORY
-                  <!-- Category Dropdown Toggle -->
                   <span v-if="showCategoryDropdown">▼</span>
                   <span v-else>▲</span>
                 </th>
