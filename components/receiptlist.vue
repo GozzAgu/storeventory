@@ -100,17 +100,29 @@ const addReceipt = async () => {
     let inventoryDocId: string | null = null;
 
     if (receipt.value.serialNumber) {
-      const inventoryRef = collection(nuxtApp.$firestore, "inventory");
-      const q = query(inventoryRef, where("serialNumber", "==", receipt.value.serialNumber));
-      const querySnapshot = await getDocs(q);
+      const receiptsRef = collection(nuxtApp.$firestore, "receipts");
+      const receiptQuery = query(receiptsRef, where("serialNumber", "==", receipt.value.serialNumber));
+      const receiptSnapshot = await getDocs(receiptQuery);
 
-      if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0];
+      if (!receiptSnapshot.empty) {
+        console.warn("A receipt with this serial number already exists:", receipt.value.serialNumber);
+        alert("A receipt with this serial number already exists! Please use a different serial number.");
+        isAddingReceipt.value = false;
+        return;
+      }
+
+      const inventoryRef = collection(nuxtApp.$firestore, "inventory");
+      const inventoryQuery = query(inventoryRef, where("serialNumber", "==", receipt.value.serialNumber));
+      const inventorySnapshot = await getDocs(inventoryQuery);
+
+      if (!inventorySnapshot.empty) {
+        const docSnap = inventorySnapshot.docs[0];
         inventoryDetails = docSnap.data();
-        inventoryDocId = docSnap.id; // Store the document ID
+        inventoryDocId = docSnap.id;
       } else {
         console.warn("No inventory found for serial number:", receipt.value.serialNumber);
         alert("No inventory found for the entered serial number.");
+        isAddingReceipt.value = false;
         return;
       }
     }
@@ -136,26 +148,21 @@ const addReceipt = async () => {
       receiptNumber: "",
     };
 
-    // Add the receipt to Firestore
     const receiptsCollection = collection(nuxtApp.$firestore, "receipts");
     const docRef = await addDoc(receiptsCollection, newReceipt);
 
-    // Update the receipt with its own ID as the receipt number
     await updateDoc(doc(docRef.firestore, "receipts", docRef.id), {
       receiptNumber: docRef.id,
     });
 
-    // If an inventory item was found, mark it as sold
     if (inventoryDocId) {
       const inventoryItemRef = doc(nuxtApp.$firestore, "inventory", inventoryDocId);
       await updateDoc(inventoryItemRef, { isSold: true });
     }
 
-    // Refresh store data
     await store.fetchReceipts();
     await invStore.fetchInventory();
 
-    // Reset receipt form
     receipt.value = {
       name: "",
       description: "",
@@ -184,28 +191,16 @@ const addReceipt = async () => {
   }
 };
 
+const duplicateReceipt = (receiptToDuplicate: any) => {
+  receipt.value = {
+    ...receiptToDuplicate,
+    receiptNumber: "",
+    issuedBy: authStore.currentUser?.email,
+    date: new Date().toISOString().split("T")[0],
+  };
 
-// const duplicateInventory = (inventory: any) => {
-//   receipt.value = {
-//     name: `${inventory.name} (Duplicate)`,
-//     description: inventory.description,
-//     category: inventory.category,
-//     price: inventory.price.toString(),
-//     color: inventory.color,
-//     size: inventory.size,
-//     grade: inventory.grade,
-//     swapIn: inventory.swapIn,
-//     serialNumber: inventory.serialNumber,
-//     supplier: inventory.supplier,
-//     dateIn: inventory.dateIn,
-//     dateOut: inventory.dateOut,
-//     isSold: inventory.isSold,
-//     inventoryOf: authStore.currentUser?.id,
-//   };
-
-//   addDrawerVisible.value = true;
-//   receipt.value = { ...inventory, isSold: false };
-// };
+  addDrawerVisible.value = true;
+};
 
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';

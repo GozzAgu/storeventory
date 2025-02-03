@@ -78,28 +78,10 @@ const grades = ref([
 ]);
 
 const duplicateInventory = (inventory: any) => {
-  const serialExists = store.inventory.some(item => item.serialNumber === product.value.serialNumber);
-  
-  if (serialExists) {
-    alert('An inventory item with this serial number already exists.');
-    return;
-  }
-
   product.value = {
-    name: `${inventory.name}`,
-    description: inventory.description,
-    category: inventory.category,
-    price: inventory.price.toString(),
-    color: inventory.color,
-    size: inventory.size,
-    grade: inventory.grade,
-    swapIn: inventory.swapIn,
-    serialNumber: inventory.serialNumber,
-    supplier: inventory.supplier,
-    dateIn: inventory.dateIn,
-    dateOut: inventory.dateOut,
-    isSold: inventory.isSold,
-    inventoryOf: authStore.currentUser?.id,
+    ...inventory,
+    issuedBy: authStore.currentUser?.email,
+    date: new Date().toISOString().split("T")[0],
   };
 
   addDrawerVisible.value = true;
@@ -127,7 +109,6 @@ const addInventory = async () => {
     return;
   }
 
-  // Check if serial number already exists
   const serialExists = store.inventory.some(item => item.serialNumber === product.value.serialNumber);
   
   if (serialExists) {
@@ -182,59 +163,6 @@ const addInventory = async () => {
     isAddingInventory.value = false;
   }
 };
-
-// const addInventory = async () => {
-//   if (!authStore.currentUser?.id) {
-//     console.error('User is not authenticated.');
-//     alert('Please log in to add inventory items.');
-//     return;
-//   }
-
-//   isAddingInventory.value = true;
-//   try {
-//     const newProduct = {
-//       name: product.value.name,
-//       description: product.value.description,
-//       category: product.value.category,
-//       price: parseFloat(product.value.price),
-//       color: product.value.color,
-//       size: product.value.size,
-//       grade: product.value.grade,
-//       swapIn: product.value.swapIn,
-//       serialNumber: product.value.serialNumber,
-//       supplier: product.value.supplier,
-//       dateIn: 'today',
-//       dateOut: 'today',
-//       isSold: false,
-//       inventoryOf: authStore.currentUser.id, // Use validated UID
-//     };
-
-//     await store.addInventoryItem(newProduct as any);
-
-//     product.value = {
-//       name: '',
-//       description: '',
-//       category: { name: '' },
-//       price: '',
-//       color: '',
-//       size: '',
-//       grade: '',
-//       swapIn: '',
-//       serialNumber: '',
-//       supplier: '',
-//       dateIn: '',
-//       dateOut: '',
-//       isSold: false,
-//       inventoryOf: '',
-//     };
-//     await store.fetchInventory();
-//     addDrawerVisible.value = false;
-//   } catch (error) {
-//     console.error('Error adding inventory:', error);
-//   } finally {
-//     isAddingInventory.value = false;
-//   }
-// };
 
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
