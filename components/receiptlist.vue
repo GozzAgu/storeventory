@@ -18,6 +18,7 @@ const deleteDialogVisible = ref(false);
 const receiptToDelete = ref(null);
 const nuxtApp = useNuxtApp();
 const itemToDelete = ref(null);
+const showModal = ref(false);
 
 const openCreateReceiptDrawer = () => {
   addDrawerVisible.value = true;
@@ -80,6 +81,11 @@ const deleteReceipt = (receipt: any) => {
 const openDeleteDialog = (receipt: any) => {
   itemToDelete.value = receipt;
   deleteDialogVisible.value = true;
+};
+
+const openReceiptDialog = (receipt: any) => {
+  itemToDelete.value = receipt;
+  showModal.value = true;
 };
 
 const closeDeleteDialog = () => {
@@ -239,6 +245,50 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-8 md:p-6 max-w-full mx-auto">
+    <Dialog
+      v-model:visible="showModal" 
+      :style="{ width: '400px', backgroundColor: dialogBackgroundColor }"
+      :modal="true"
+      :closable="false"
+      :draggable="false"
+      class="custom-dialog"
+    >
+      <template #header>
+        <h3 class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-100">SwiftSort Receipt</h3>
+      </template>
+
+      <div class="receipt bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md text-gray-800 dark:text-gray-100">
+        <div class="text-center border-b border-gray-300 pb-2">
+          <h2 class="text-lg font-semibold">Receipt</h2>
+          <p class="text-sm text-gray-500">Issued by: {{  }}</p>
+          <p class="text-sm text-gray-500">On</p>
+          <p class="text-sm text-gray-500">Date: {{  }}</p>
+        </div>
+        <div class="mt-4 space-y-2">
+          <span>{{ itemToDelete.name }}</span>
+          <span>{{ itemToDelete.customer }}</span>
+          <span>{{ itemToDelete.customerEmail }}</span>
+          <span>{{ itemToDelete.customerNumber }}</span>
+          <span>{{ itemToDelete.amount }}</span>
+          <span>{{ itemToDelete.color }}</span>
+          <span>{{ itemToDelete.size }}</span>
+          <span>{{ itemToDelete.swap.name }}</span>
+          <span>{{ itemToDelete.serialNumber }}</span>
+          <span>{{ itemToDelete.paidVia.name }}</span>
+          <span>{{ itemToDelete.date }}</span>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4 mt-6">
+        <button
+          class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
+          @click=""
+        >
+          Download
+        </button>
+      </div>
+    </Dialog>
+
     <Dialog 
       v-model:visible="deleteDialogVisible" 
       :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
@@ -439,7 +489,7 @@ onMounted(async () => {
                   <span v-if="showCategoryDropdown">▼</span>
                   <span v-else>▲</span>
                 </th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">REC ID</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-light-bg dark:bg-darker-bg">REC ID</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRODUCT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRICE</th>
@@ -471,9 +521,9 @@ onMounted(async () => {
                 v-for="(receipt, index) in filteredReceipts"
                 :key="index" 
                 class="hover:bg-light-bg hover:dark:bg-dark-bg">
-                <td class="py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
+                <td class="py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td> 
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.category.name }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">INV-{{ receipt.id }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-lighter-bg dark:bg-darker-bg">INV-{{ receipt.id }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.description }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ receipt.amount }}</td>
@@ -485,6 +535,7 @@ onMounted(async () => {
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.paidVia.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.date }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
+                  <button @click="openReceiptDialog(receipt)" class="mr-2 text-green-500 hover:text-green-600">Receipt</button>
                   <button 
                     @click="duplicateReceipt(receipt)" 
                     class="text-blue-500 hover:text-blue-600"

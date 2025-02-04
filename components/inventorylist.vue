@@ -137,7 +137,6 @@ const addInventory = async () => {
 
     await store.addInventoryItem(newProduct as any);
     
-    // Reset the form after adding successfully
     product.value = {
       name: '',
       description: '',

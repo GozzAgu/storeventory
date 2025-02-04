@@ -37,9 +37,12 @@ watch(
 onMounted(() => {
   if (authStore.currentUser?.id) {
     authStore.fetchCurrentUser(authStore.currentUser.id);
-    console.log(authStore.currentUser?.adminName);
   }
 });
+
+onMounted(() => {
+  
+})
 </script>
 
 <template>
