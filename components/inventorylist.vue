@@ -425,14 +425,14 @@ onMounted(async() => {
           <button 
             @click="exportCSV"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
-            class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
-            <i class="text-xs md:text-base pi pi-external-link"></i> Export
+            class="ttext-xs md:text-sm p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            <i class="text-xs md:text-sm pi pi-external-link"></i> Export
           </button>
           <button 
             @click="openCreateInventoryDrawer"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
-            class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
-            <i class="text-xs md:text-base pi pi-plus"></i> Add 
+            class="text-xs md:text-sm p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            <i class="text-xs md:text-sm pi pi-plus"></i> Add 
           </button>
         </div>
       </div>
@@ -478,8 +478,8 @@ onMounted(async() => {
                   <span v-if="showCategoryDropdown">▼</span>
                   <span v-else>▲</span>
                 </th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">INV ID</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRODUCT</th>
+                <!-- <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">INV ID</th> -->
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">PRODUCT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRICE</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">COLOR</th>
@@ -514,8 +514,8 @@ onMounted(async() => {
                 class="hover:bg-light-bg hover:dark:bg-dark-bg">
                 <td class="py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.category.name }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">INV-{{ inventory.id }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.name }}</td>
+                <!-- <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">INV-{{ inventory.id }}</td> -->
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">{{ inventory.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.description }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ inventory.price }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.color }}</td>
@@ -534,13 +534,13 @@ onMounted(async() => {
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.dateIn }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.dateOut }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
-                  <button 
-                    @click="duplicateInventory(inventory)" 
-                    class="text-blue-500 hover:text-blue-600"
-                  >
-                    Duplicate
+                  <button @click="duplicateInventory(inventory)" class="text-indigo-900 hover:text-indigo-700">
+                    <i class="text-xs md:text-base pi pi-copy"></i>
                   </button>
-                  <button @click="openDeleteDialog(inventory)" class="ml-2 text-red-500 hover:text-red-600">Delete</button>
+            
+                  <button @click="openDeleteDialog(inventory)" class="ml-2 text-red-500 hover:text-red-600">
+                    <i class="text-xs md:text-base pi pi-trash"></i>
+                  </button>
                 </td>
               </tr>
             </tbody>

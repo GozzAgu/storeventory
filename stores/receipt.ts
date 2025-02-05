@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { type ReceiptData } from '~/types/receipt';
-import { collection, addDoc, doc, onSnapshot, getDoc, deleteDoc } from "firebase/firestore"
+import { collection, addDoc, doc, onSnapshot, getDoc, deleteDoc, query, where, getDocs, updateDoc } from "firebase/firestore"
 
 export const useReceiptStore = defineStore('receipts', {
   state: () => ({
@@ -29,12 +29,45 @@ export const useReceiptStore = defineStore('receipts', {
     
       try {
         const docRef = doc(nuxtApp.$firestore, "receipts", id);
+        
+        // Fetch the receipt data before deleting
+        const receiptSnapshot = await getDoc(docRef);
+        if (!receiptSnapshot.exists()) {
+          console.warn(`Receipt with ID ${id} not found`);
+          return;
+        }
+    
+        const receiptData = receiptSnapshot.data();
+    
+        // Proceed with receipt deletion
         await deleteDoc(docRef);
-        console.log(`Document with ID ${id} has been deleted`);
+        console.log(`Receipt with ID ${id} has been deleted`);
+    
+        // If the receipt has a serial number, update the corresponding inventory item
+        if (receiptData.serialNumber) {
+          const inventoryRef = collection(nuxtApp.$firestore, "inventory");
+          const inventoryQuery = query(inventoryRef, where("serialNumber", "==", receiptData.serialNumber));
+          const inventorySnapshot = await getDocs(inventoryQuery);
+    
+          if (!inventorySnapshot.empty) {
+            const inventoryDoc = inventorySnapshot.docs[0];
+            const inventoryItemRef = doc(nuxtApp.$firestore, "inventory", inventoryDoc.id);
+    
+            // Update isSold to false
+            await updateDoc(inventoryItemRef, { isSold: false });
+            console.log(`Inventory item with serial number ${receiptData.serialNumber} marked as not sold.`);
+          } else {
+            console.warn("No matching inventory found for serial number:", receiptData.serialNumber);
+          }
+        }
+    
+        // Refresh the inventory store
+        await useInvStore().fetchInventory();
       } catch (error) {
-        console.error("Error deleting document: ", error);
+        console.error("Error deleting receipt and updating inventory: ", error);
       }
     },
+    
     
     async fetchReceipts() {
       const nuxtApp = useNuxtApp();

@@ -35,6 +35,11 @@ const modeOfPayment = [
   { name: 'Crypto' },
 ];
 
+const swaps = ref([
+  { name: 'Yes'},
+  { name: 'No'},
+]);
+
 const receipt = ref({
   name: '',
   category: '',
@@ -146,7 +151,7 @@ const addReceipt = async () => {
       color: inventoryDetails.color || receipt.value.color,
       size: inventoryDetails.size || receipt.value.size,
       date: receipt.value.date,
-      swap: inventoryDetails.swapIn || false,
+      swap: receipt.value.swap,
       paidVia: receipt.value.paidVia,
       serialNumber: inventoryDetails.serialNumber || receipt.value.serialNumber,
       issuedBy: authStore.currentUser.email,
@@ -279,6 +284,7 @@ onMounted(async () => {
         </div>
       </div>
 
+      
       <div class="flex justify-end gap-4 mt-6">
         <button
           class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
@@ -414,6 +420,25 @@ onMounted(async () => {
           />
         </div>
 
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Swap ?</label>
+          <Select 
+            v-model="receipt.swap"          
+            :options="swaps"                
+            optionLabel="name"                  
+            placeholder="Is this a swap?"
+            :style="{
+              width: '100%',
+              height: '2.6rem',
+              padding: '0.2rem', 
+              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+              borderRadius: '0.375rem', 
+              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+              color: isDarkMode ? '#D1D5DB' : '#1F2937'
+            }"
+          />
+        </div>
+
         <div class="flex justify-end gap-4 mt-6">
           <button type="button" @click="addDrawerVisible = false" class="text-gray-500 hover:text-gray-600 -mt-2">Cancel</button>
           <button
@@ -443,8 +468,8 @@ onMounted(async () => {
           <button 
             @click="openCreateReceiptDrawer"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
-            class="text-xs md:text-base p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
-            <i class="text-xs md:text-base pi pi-plus"></i> Generate Receipt 
+            class="text-xs md:text-sm p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            <i class="text-xs md:text-sm pi pi-plus"></i> Generate Receipt 
           </button>
         </div>
       </div>
@@ -489,8 +514,8 @@ onMounted(async () => {
                   <span v-if="showCategoryDropdown">▼</span>
                   <span v-else>▲</span>
                 </th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-light-bg dark:bg-darker-bg">REC ID</th>
-                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRODUCT</th>
+                <!-- <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-light-bg dark:bg-darker-bg">REC ID</th> -->
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-light-bg dark:bg-darker-bg">PRODUCT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRICE</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">CUSTOMER</th>
@@ -523,8 +548,8 @@ onMounted(async () => {
                 class="hover:bg-light-bg hover:dark:bg-dark-bg">
                 <td class="py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td> 
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.category.name }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-lighter-bg dark:bg-darker-bg">INV-{{ receipt.id }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.name }}</td>
+                <!-- <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-lighter-bg dark:bg-darker-bg">INV-{{ receipt.id }}</td> -->
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-lighter-bg dark:bg-darker-bg">{{ receipt.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.description }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ receipt.amount }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.customer }}</td>
@@ -535,14 +560,17 @@ onMounted(async () => {
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.paidVia.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.date }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
-                  <button @click="openReceiptDialog(receipt)" class="mr-2 text-green-500 hover:text-green-600">Receipt</button>
-                  <button 
-                    @click="duplicateReceipt(receipt)" 
-                    class="text-blue-500 hover:text-blue-600"
-                  >
-                    Duplicate
+                  <button @click="openReceiptDialog(receipt)" class="text-indigo-900 hover:text-indigo-700">
+                    <i class="text-xs md:text-base pi pi-receipt"></i>
                   </button>
-                  <button @click="openDeleteDialog(receipt)" class="ml-2 text-red-500 hover:text-red-600">Delete</button>
+
+                  <button @click="duplicateReceipt(receipt)" class="ml-2 text-indigo-900 hover:text-indigo-700">
+                    <i class="text-xs md:text-base pi pi-copy"></i>
+                  </button>
+            
+                  <button @click="openDeleteDialog(receipt)" class="ml-2 text-red-500 hover:text-red-600">
+                    <i class="text-xs md:text-base pi pi-trash"></i>
+                  </button>
                 </td>
               </tr>
             </tbody>

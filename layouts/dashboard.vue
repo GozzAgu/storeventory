@@ -132,7 +132,7 @@ onMounted(() => {
 
     <div class="flex-1 flex flex-col overflow-x-auto">
       <div
-        class="w-full h-[60px] flex items-center px-6 transition-all duration-300"
+        class="w-full h-[60px] flex items-center px-6 transition-all duration-300 py-2 md:py-0"
         :style="{
           boxShadow: isDarkMode 
             ? '0 1px 0 rgba(0, 0, 0, 0.1)' 
