@@ -20,24 +20,18 @@ function handleToggle() {
       </p>
       <NuxtLink
         to="auth/signin"
-        class="duration-300 hover:shadow-lg hover:scale-105 block w-full mb-4 py-2 text-center rounded-md"
+        class="duration-300 hover:scale-105 block w-full mb-4 py-2 text-center rounded-md"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
         >
         Sign In
       </NuxtLink>
       <NuxtLink
         to="auth/signup"
-        class="duration-300 hover:shadow-lg hover:scale-105 block w-full py-2 text-center rounded-md"
+        class="duration-300 hover:scale-105 block w-full py-2 text-center rounded-md"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
         >
         Sign Up
       </NuxtLink>
-      <Button
-        :icon="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
-        class="duration-300 hover:shadow-lg hover:scale-105 w-full mt-4 py-2"
-        @click="handleToggle"
-        style="background-color: #4c5270; color: white; border-color: #4c5270;"
-      />
     </div>
   </div>
 </template>

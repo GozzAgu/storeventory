@@ -76,6 +76,25 @@ const grades = ref([
   { name: 'Used'},
 ]);
 
+const resetProduct = () => {
+  product.value = {
+    name: '',
+    description: '',
+    category: {} as Category,
+    price: '',
+    color: '',
+    size: '',
+    grade: '',
+    swapIn: '',
+    serialNumber: '',
+    supplier: '',
+    dateIn: '',
+    dateOut: '',
+    isSold: false,
+    inventoryOf: authStore.currentUser?.id || '',
+  };
+};
+
 const duplicateInventory = (inventory: any) => {
   product.value = {
     ...inventory,
@@ -85,6 +104,16 @@ const duplicateInventory = (inventory: any) => {
 
   addDrawerVisible.value = true;
 };
+
+const closeDrawer = () => {
+  addDrawerVisible.value = false;
+};
+
+watch(addDrawerVisible, (newValue) => {
+  if (!newValue) {
+    resetProduct();
+  }
+});
 
 const deleteInventory = (inventory: any) => {
   store.removeInventoryItem(inventory.id);
@@ -397,7 +426,7 @@ onMounted(async() => {
         </div>
 
         <div class="flex justify-end space-x-4 mt-4 fixed bottom-2 right-4">
-          <button type="button" @click="addDrawerVisible = false" class="text-gray-500 hover:text-gray-600 -mt-2 py-1 px-2">Cancel</button>
+          <button type="button" @click="closeDrawer" class="text-gray-500 hover:text-gray-600 -mt-2 py-1 px-2">Cancel</button>
           <button
             type="submit"
             :disabled="isAddingInventory"

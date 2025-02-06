@@ -257,6 +257,37 @@ const duplicateReceipt = (receiptToDuplicate: any) => {
   addDrawerVisible.value = true;
 };
 
+const resetProduct = () => {
+  receipt.value = {
+    name: "",
+    description: "",
+    amount: 0,
+    category: "",
+    customer: "",
+    customerEmail: "",
+    customerNumber: "",
+    color: "",
+    size: "",
+    date: "",
+    swap: false,
+    paidVia: "",
+    serialNumber: "",
+    receiptNumber: "",
+    issuedBy: authStore.currentUser?.id,
+    receiptOf: "",
+  };
+};
+
+const closeDrawer = () => {
+  addDrawerVisible.value = false;
+};
+
+watch(addDrawerVisible, (newValue) => {
+  if (!newValue) {
+    resetProduct();
+  }
+});
+
 const drawerBackgroundColor = computed(() => {
   return isDarkMode.value ? '#201F2A' : '#E3E4EB';
 });
