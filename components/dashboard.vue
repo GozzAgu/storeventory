@@ -8,35 +8,92 @@ const receiptStore = useReceiptStore();
 
 const stats = computed(() => [
   { title: 'Total Inventory', value: invStore.inventory.length, icon: 'pi pi-shopping-cart', color: 'bg-blue-500' },
-  { title: 'Total Receipts', value: receiptStore.receipts.length, icon: 'pi pi-check-circle', color: 'bg-yellow-500' },
-  { title: 'Customers', value: '1,100', icon: 'pi pi-users', color: 'bg-green-500' },
+  { title: 'Total Receipts', value: receiptStore.receipts.length, icon: 'pi pi-check-circle', color: 'bg-green-500' },
+  { title: 'Customers', value: groupedReceiptsByPhone.value.length, icon: 'pi pi-users', color: 'bg-yellow-500' },
   { title: 'Revenue', value: '$45,000', icon: 'pi pi-dollar', color: 'bg-purple-500' },
 ]);
 
-const recentActivities = [
-  { description: 'New customer registered: John Doe', time: '30 mins ago' },
-  { description: 'Product "Smart Watch" added to inventory', time: '3 hours ago' },
-];
+const recentActivities = ref<{ description: string; time: any }[]>([]);
 
-const chartData = {
+watch(() => invStore.inventory, (newInventory, oldInventory) => {
+  if (newInventory.length > oldInventory.length) {
+    const newItem = newInventory[newInventory.length - 1];
+    recentActivities.value.unshift({
+      description: `Product "${newItem.name}" added to inventory`,
+      time: newItem.dateIn,
+    });
+  }
+}, { deep: true });
+
+watch(() => receiptStore.receipts, (newReceipts, oldReceipts) => {
+  if (newReceipts.length > oldReceipts.length) {
+    const newReceipt = newReceipts[newReceipts.length - 1];
+    recentActivities.value.unshift({
+      description: `New receipt issued to ${newReceipt.customer}`,
+      time: newReceipt.date,
+    });
+
+    const phoneNumbers = new Set(oldReceipts.map(r => r.customerNumber));
+    if (!phoneNumbers.has(newReceipt.customerNumber)) {
+      recentActivities.value.unshift({
+        description: `New customer registered: ${newReceipt.customer}`,
+        time: newReceipt.date,
+      });
+    }
+  }
+}, { deep: true });
+
+watch([() => invStore.inventory, () => receiptStore.receipts], () => {
+  if (recentActivities.value.length > 10) {
+    recentActivities.value.pop();
+  }
+}, { deep: true });
+
+const groupedReceiptsByPhone = computed(() => {
+  const grouped = receiptStore.receipts.reduce((acc, receipt) => {
+    const phoneNumber = receipt.customerNumber;
+    if (phoneNumber) {
+      if (!acc[phoneNumber]) {
+        acc[phoneNumber] = { phoneNumber, receipts: [] };
+      }
+      acc[phoneNumber].receipts.push(receipt);
+    }
+    return acc;
+  }, {} as Record<string, { phoneNumber: string; receipts: typeof receiptStore.receipts }>);
+  return Object.values(grouped);
+});
+
+const getMonthlyCounts = (data: any[], dateProp: 'dateIn' | 'date') => {
+  const counts = Array(12).fill(0);
+  data.forEach(item => {
+    const dateValue = item[dateProp];
+    if (dateValue) {
+      const month = new Date(dateValue).getMonth();
+      counts[month] += 1;
+    }
+  });
+  return counts;
+};
+
+const chartData = computed(() => ({
   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   datasets: [
     {
-      label: 'Inventory',
-      data: [120, 200, 300, 500, 800, 900, 1000, 1200, 1500, 1800, 2000, 2200],
+      label: 'Inventory Added',
+      data: getMonthlyCounts(invStore.inventory, 'dateIn'),
       borderColor: '#42A5F5',
       backgroundColor: 'rgba(66, 165, 245, 0.2)',
       fill: true,
     },
     {
-      label: 'Receipts',
-      data: [200, 400, 600, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000],
+      label: 'Receipts Issued',
+      data: getMonthlyCounts(receiptStore.receipts, 'date'),
       borderColor: '#66BB6A',
       backgroundColor: 'rgba(102, 187, 106, 0.2)',
       fill: true,
-    },
+    }
   ],
-};
+}));
 
 const chartOptions = {
   plugins: {

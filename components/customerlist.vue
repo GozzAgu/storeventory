@@ -13,7 +13,6 @@ const isCustomerOpen = (index: number) => {
   return openCustomerIndex.value === index;
 };
 
-// Group receipts by customer phone number
 const groupedReceiptsByPhone = computed(() => {
   const grouped = store.receipts.reduce((acc, receipt) => {
     const phoneNumber = receipt.customerNumber;
@@ -73,7 +72,6 @@ onMounted(() => {
       </transition>
     </div>
 
-    <!-- No Customers Message -->
     <div v-if="groupedReceiptsByPhone.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
       <p class="text-gray-600 dark:text-gray-400">No customers added yet.</p>
     </div>
