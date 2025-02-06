@@ -234,7 +234,7 @@ const addReceipt = async () => {
       paidVia: "",
       serialNumber: "",
       receiptNumber: "",
-      issuedBy: authStore.currentUser?.id,
+      issuedBy: "",
       receiptOf: "",
     };
 
@@ -273,13 +273,9 @@ const resetProduct = () => {
     paidVia: "",
     serialNumber: "",
     receiptNumber: "",
-    issuedBy: authStore.currentUser?.id,
+    issuedBy: "",
     receiptOf: "",
   };
-};
-
-const closeDrawer = () => {
-  addDrawerVisible.value = false;
 };
 
 watch(addDrawerVisible, (newValue) => {
@@ -345,29 +341,70 @@ onMounted(async () => {
       class="custom-dialog"
     >
       <template #header>
-        <h3 class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-100">SwiftSort Receipt</h3>
+        <h3 class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-100">Stoventory Receipt</h3>
       </template>
 
-      <div class="receipt bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md text-gray-800 dark:text-gray-100">
-        <div class="text-center border-b border-gray-300 pb-2">
-          <h2 class="text-lg font-semibold">Receipt</h2>
-          <p class="text-sm text-gray-500">Issued by: {{  }}</p>
-          <p class="text-sm text-gray-500">On</p>
-          <p class="text-sm text-gray-500">Date: {{  }}</p>
+      <div class="receipt bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-800 dark:text-gray-100 w-80 mx-auto font-mono border border-gray-300">
+        <div class="text-center border-b border-dashed border-gray-400 pb-3">
+          <h2 class="font-bold">{{ authStore.currentUser?.adminName }}</h2>
+          <p class="text-xs text-gray-500">Official Receipt</p>
+          <p class="text-xs">Issued by: <strong>{{ issuedBy }}</strong></p>
+          <p class="text-xs">Date: <strong>{{ itemToDelete.date }}</strong></p>
         </div>
-        <!-- <div class="mt-4 space-y-2">
-          <span>{{ itemToDelete.name }}</span>
-          <span>{{ itemToDelete.customer }}</span>
-          <span>{{ itemToDelete.customerEmail }}</span>
-          <span>{{ itemToDelete.customerNumber }}</span>
-          <span>{{ itemToDelete.amount }}</span>
-          <span>{{ itemToDelete.color }}</span>
-          <span>{{ itemToDelete.size }}</span>
-          <span>{{ itemToDelete.swap.name }}</span>
-          <span>{{ itemToDelete.serialNumber }}</span>
-          <span>{{ itemToDelete.paidVia.name }}</span>
-          <span>{{ itemToDelete.date }}</span>
-        </div> -->
+
+        <div class="mt-4 text-xs">
+          <div class="flex justify-between">
+            <span class="font-semibold">Customer:</span>
+            <span>{{ itemToDelete.customer }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Email:</span>
+            <span>{{ itemToDelete.customerEmail }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Phone:</span>
+            <span>{{ itemToDelete.customerNumber }}</span>
+          </div>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 mt-4 pt-3 text-xs">
+          <div class="flex justify-between">
+            <span class="font-semibold">Item:</span>
+            <span>{{ itemToDelete.name }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Color:</span>
+            <span>{{ itemToDelete.color }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Size:</span>
+            <span>{{ itemToDelete.size }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Serial No:</span>
+            <span>{{ itemToDelete.serialNumber }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Swap Item:</span>
+            <span>{{ itemToDelete.swap.name }}</span>
+          </div>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 mt-4 pt-3 text-xs">
+          <div class="flex justify-between">
+            <span class="font-semibold">Paid Via:</span>
+            <span>{{ itemToDelete.paidVia.name }}</span>
+          </div>
+          <div class="flex justify-between text-lg font-bold mt-2">
+            <span>Total:</span>
+            <span>${{ itemToDelete.amount }}</span>
+          </div>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 mt-4 pt-3 text-center text-xs text-gray-500">
+          <p>Thank you for shopping with us!</p>
+          <p>Visit Again</p>
+        </div>
       </div>
 
       

@@ -147,7 +147,7 @@ onMounted(() => {
               @click="mobileNavOpen = !mobileNavOpen"
             ></i>
           </div>
-          <span class="text-xl font-black">Stoventory</span>
+          <span class="text-xl font-black">Storeventory</span>
         </div>
 
         <div class="ml-auto flex items-center space-x-4">  
