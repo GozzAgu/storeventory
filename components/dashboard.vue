@@ -115,7 +115,7 @@ onMounted(() => {
       <div
         v-for="(stat, index) in stats"
         :key="index"
-        :class="`p-4 rounded-lg text-white ${stat.color}`"
+        :class="`p-4 rounded-md text-white ${stat.color}`"
       >
         <div class="flex items-center space-x-4">
           <i :class="`${stat.icon} text-3xl`"></i>
@@ -127,21 +127,21 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h2 class="text-lg font-semibold mb-4">Recent Activities</h2>
-      <ul class="space-y-3">
+      <ul class="space-y-1">
         <li
           v-for="(activity, index) in recentActivities"
           :key="index"
           class="flex justify-between items-center text-gray-600 dark:text-gray-400"
         >
-          <span>{{ activity.description }}</span>
-          <span class="text-sm text-gray-400">{{ activity.time }}</span>
+          <span class="text-xs">{{ activity.description }}</span>
+          <span class="text-xs text-gray-400">{{ activity.time }}</span>
         </li>
       </ul>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h2 class="text-lg font-semibold mb-4">Performance Overview</h2>
       <Chart type="line" :data="chartData" :options="chartOptions" />
     </div>

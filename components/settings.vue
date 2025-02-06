@@ -44,7 +44,7 @@ const saveNotifications = () => {
 
 <template>
   <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h2 class="text-sm md:text-2xl font-semibold mb-4">Profile Settings</h2>
       <form @submit.prevent="updateProfile">
         <div class="space-y-4">
@@ -86,7 +86,7 @@ const saveNotifications = () => {
     </div>
 
     <!-- Notification Preferences Form -->
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h2 class="text-sm md:text-2xl font-semibold mb-4">Notification Preferences</h2>
       <form @submit.prevent="saveNotifications">
         <div class="space-y-4">

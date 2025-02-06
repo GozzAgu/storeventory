@@ -674,12 +674,12 @@ onMounted(async () => {
       </form>
     </Drawer>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h2 class="text-sm md:text-2xl font-semibold">Receipts</h2>
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all receipts</p>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[470px] md:h-[680px]">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md h-[470px] md:h-[680px]">
       <div class="flex justify-between items-center pb-4">
         <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Items ({{ store.receipts.length }})</h3>
         <div class="flex justify-between items-center mb-4">
@@ -688,7 +688,7 @@ onMounted(async () => {
           <button 
             @click="openCreateReceiptDrawer"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
-            class="text-xs md:text-sm p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
             <i class="text-xs md:text-sm pi pi-plus"></i> Generate Receipt 
           </button>
         </div>
@@ -800,8 +800,9 @@ onMounted(async () => {
 
       <div class="flex justify-between items-center mt-4">
         <button 
+          style="background-color: #4c5270; color: white; border-color: #4c5270;"
           @click="currentPage > 1 && (currentPage--)" :disabled="currentPage === 1"
-          class="bg-gray-200 dark:bg-gray-600 text-dark-text dark:text-light-text text-sm px-4 py-2 rounded shadow"
+          class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
         >
           Prev
         </button>
@@ -809,9 +810,10 @@ onMounted(async () => {
           Page {{ currentPage }} of {{ Math.ceil(store.receipts.length / itemsPerPage) }}
         </span>
         <button 
+          style="background-color: #4c5270; color: white; border-color: #4c5270;"
           @click="currentPage * itemsPerPage < store.receipts.length && (currentPage++)"
           :disabled="currentPage * itemsPerPage >= store.receipts.length"
-          class="bg-gray-200 dark:bg-gray-600 text-dark-text dark:text-light-text text-sm px-4 py-2 rounded shadow"
+          class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
         >
           Next
         </button>

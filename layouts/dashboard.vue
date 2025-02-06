@@ -58,7 +58,7 @@ onMounted(() => {
         isSidenavOpen ? 'w-64' : 'w-16', 
         isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text' 
       ]"
-      class="h-full shadow-lg flex flex-col lg:block hidden"
+      class="h-full shadow-lg flex-col lg:block hidden"
     >
       <div class="flex items-center p-4 space-x-4">
         <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
@@ -83,7 +83,7 @@ onMounted(() => {
             'flex items-center space-x-4 p-2 rounded-md cursor-pointer hover:bg-darker-bg hover:text-light-text',
             { 'bg-hover-bg text-hover-text': isActive(item.route!) }
           ]"
-          exact-active-class="bg-hover-bg text-hover-text"
+          exact-active-class="bg-hover-bg text-hover-text dark:bg-darker-bg"
         >
           <i :class="item.icon" class="text-lg"></i>
           <span v-if="isSidenavOpen" class="font-medium">{{ item.label }}</span>
@@ -132,7 +132,7 @@ onMounted(() => {
 
     <div class="flex-1 flex flex-col overflow-x-auto">
       <div
-        class="w-full h-[60px] flex items-center px-6 transition-all duration-300 py-2 md:py-0"
+        class="w-full h-[60px] flex items-center px-6 transition-all duration-300 py-2 md:py-4"
         :style="{
           boxShadow: isDarkMode 
             ? '0 1px 0 rgba(0, 0, 0, 0.1)' 
@@ -141,21 +141,18 @@ onMounted(() => {
         :class="isDarkMode ? 'bg-dark-bg text-light-text' : 'bg-light-bg text-dark-text'"
       >
         <div class="flex items-center space-x-4">
-          <i
-            class="pi pi-bars text-lg cursor-pointer lg:hidden"
-            @click="mobileNavOpen = !mobileNavOpen"
-          ></i>
+          <div class="lg:hidden">
+            <i
+              class="pi pi-bars text-lg cursor-pointer"
+              @click="mobileNavOpen = !mobileNavOpen"
+            ></i>
+          </div>
           <span class="text-xl font-black">Stoventory</span>
         </div>
 
-        <div class="ml-auto flex items-center space-x-4">
-          <div class="relative cursor-pointer hover:text-darker-text transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2">
-            <i class="pi pi-bell text-lg"></i>
-            <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex justify-center items-center">3</span>
-          </div>
-
+        <div class="ml-auto flex items-center space-x-4">  
           <i
-            class="text-lg cursor-pointer hover:text-darker-text transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2"
+            class="text-lg cursor-pointer md:hover:text-darker-text transition-all duration-300 md:hover:bg-darker-bg md:hover:text-light-text rounded-md p-2"
             :class="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
             @click="isDarkMode = !isDarkMode"
           ></i>

@@ -16,14 +16,14 @@ const submitQuestion = () => {
 
 <template>
   <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h2 class="text-sm md:text-2xl font-semibold mb-4">Help & Support</h2>
       <p class="text-gray-600 dark:text-gray-400 text-xs md:text-sm">
         Welcome to the Help Center. Here you can find answers to frequently asked questions and reach out for further assistance.
       </p>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h3 class="text-sm md:text-lg font-semibold mb-4">Frequently Asked Questions</h3>
       <ul class="space-y-4">
         <li>
@@ -62,7 +62,7 @@ const submitQuestion = () => {
       </ul>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h3 class="text-sm md:text-lg font-semibold mb-4">Submit a Question</h3>
       <form @submit.prevent="submitQuestion">
         <div class="space-y-4">

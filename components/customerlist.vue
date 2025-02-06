@@ -35,12 +35,12 @@ onMounted(() => {
 
 <template>
   <div class="md:p-6 max-w-8xl mx-auto">
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mb-8">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md mb-8">
       <h2 class="text-sm md:text-2xl font-semibold">Customers List</h2>
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage your customers</p>
     </div>
 
-    <div v-for="(group, index) in groupedReceiptsByPhone" :key="index" class="bg-lighter-bg dark:bg-darker-bg p-4 rounded-lg mb-2">
+    <div v-for="(group, index) in groupedReceiptsByPhone" :key="index" class="bg-lighter-bg dark:bg-darker-bg p-4 rounded-md mb-2">
       <div class="flex justify-between items-center cursor-pointer" @click="toggleCustomerDetails(index)">
         <h3 class="text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-100">
           {{ group.receipts[0].customer }} <!-- Display first customer's name -->
@@ -72,7 +72,7 @@ onMounted(() => {
       </transition>
     </div>
 
-    <div v-if="groupedReceiptsByPhone.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
+    <div v-if="groupedReceiptsByPhone.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md mt-6">
       <p class="text-gray-600 dark:text-gray-400">No customers added yet.</p>
     </div>
   </div>
