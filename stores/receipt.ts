@@ -30,7 +30,6 @@ export const useReceiptStore = defineStore('receipts', {
       try {
         const docRef = doc(nuxtApp.$firestore, "receipts", id);
         
-        // Fetch the receipt data before deleting
         const receiptSnapshot = await getDoc(docRef);
         if (!receiptSnapshot.exists()) {
           console.warn(`Receipt with ID ${id} not found`);
@@ -39,11 +38,9 @@ export const useReceiptStore = defineStore('receipts', {
     
         const receiptData = receiptSnapshot.data();
     
-        // Proceed with receipt deletion
         await deleteDoc(docRef);
         console.log(`Receipt with ID ${id} has been deleted`);
     
-        // If the receipt has a serial number, update the corresponding inventory item
         if (receiptData.serialNumber) {
           const inventoryRef = collection(nuxtApp.$firestore, "inventory");
           const inventoryQuery = query(inventoryRef, where("serialNumber", "==", receiptData.serialNumber));
@@ -53,8 +50,7 @@ export const useReceiptStore = defineStore('receipts', {
             const inventoryDoc = inventorySnapshot.docs[0];
             const inventoryItemRef = doc(nuxtApp.$firestore, "inventory", inventoryDoc.id);
     
-            // Update isSold to false
-            await updateDoc(inventoryItemRef, { isSold: false });
+            await updateDoc(inventoryItemRef, { isSold: false, dateOut: '--' });
             console.log(`Inventory item with serial number ${receiptData.serialNumber} marked as not sold.`);
           } else {
             console.warn("No matching inventory found for serial number:", receiptData.serialNumber);

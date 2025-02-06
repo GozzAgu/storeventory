@@ -19,6 +19,7 @@ const receiptToDelete = ref(null);
 const nuxtApp = useNuxtApp();
 const itemToDelete = ref(null);
 const showModal = ref(false);
+const showAdditionalFields = ref(false);
 
 const openCreateReceiptDrawer = () => {
   addDrawerVisible.value = true;
@@ -28,6 +29,9 @@ const dialogBackgroundColor = computed(() =>
   isDarkMode.value ? '#201F2A' : '#FFFFFF'
 );
 
+const nextFields = () => {
+  showAdditionalFields.value = true;
+};
 const modeOfPayment = [
   { name: 'Cash' },
   { name: 'Bank Transfer' },
@@ -39,6 +43,28 @@ const swaps = ref([
   { name: 'Yes'},
   { name: 'No'},
 ]);
+
+const grades = ref([
+  { name: 'New'},
+  { name: 'Used'},
+]);
+
+const product = ref({
+  name: '',
+  description: '',
+  category: {} as Category,
+  price: '',
+  color: '',
+  size: '',
+  grade: '',
+  swapIn: '',
+  serialNumber: '',
+  supplier: '',
+  dateIn: '',
+  dateOut: '',
+  isSold: false,
+  inventoryOf: authStore.currentUser?.id,
+});
 
 const receipt = ref({
   name: '',
@@ -150,7 +176,7 @@ const addReceipt = async () => {
       category: inventoryDetails.category || receipt.value.category,
       color: inventoryDetails.color || receipt.value.color,
       size: inventoryDetails.size || receipt.value.size,
-      date: receipt.value.date,
+      date: new Date().toISOString().split("T")[0],
       swap: receipt.value.swap,
       paidVia: receipt.value.paidVia,
       serialNumber: inventoryDetails.serialNumber || receipt.value.serialNumber,
@@ -159,6 +185,25 @@ const addReceipt = async () => {
       receiptNumber: "",
     };
 
+    if(receipt.value.swap?.name === 'Yes') {
+      const newProduct = {
+        name: product.value.name,
+        description: product.value.description,
+        category: product.value.category,
+        price: product.value.price,
+        color: product.value.color,
+        size: product.value.size,
+        grade: product.value.grade,
+        swapIn: product.value.swapIn,
+        serialNumber: product.value.serialNumber,
+        supplier: product.value.supplier,
+        dateIn: new Date().toISOString().split("T")[0],
+        dateOut: "--",
+        isSold: false,
+        inventoryOf: authStore.currentUser?.id,
+      }
+      invStore.addInventoryItem(newProduct as any);
+    }
     const receiptsCollection = collection(nuxtApp.$firestore, "receipts");
     const docRef = await addDoc(receiptsCollection, newReceipt);
 
@@ -168,7 +213,7 @@ const addReceipt = async () => {
 
     if (inventoryDocId) {
       const inventoryItemRef = doc(nuxtApp.$firestore, "inventory", inventoryDocId);
-      await updateDoc(inventoryItemRef, { isSold: true });
+      await updateDoc(inventoryItemRef, { isSold: true, dateOut: new Date().toISOString().split("T")[0] });
     }
 
     await store.fetchReceipts();
@@ -209,7 +254,6 @@ const duplicateReceipt = (receiptToDuplicate: any) => {
     issuedBy: authStore.currentUser?.email,
     date: new Date().toISOString().split("T")[0],
   };
-
   addDrawerVisible.value = true;
 };
 
@@ -232,6 +276,17 @@ const filteredReceipts = computed(() => {
     return paginatedInventory.value;
   }
   return paginatedInventory.value.filter(item => item.category.name === selectedCategory.value?.name);
+});
+
+const isReceiptComplete = computed(() => {
+  return (
+    receipt.value.amount &&
+    receipt.value.customer &&
+    receipt.value.customerEmail &&
+    receipt.value.customerNumber &&
+    receipt.value.serialNumber &&
+    receipt.value.paidVia
+  );
 });
 
 onMounted(async () => {
@@ -269,7 +324,7 @@ onMounted(async () => {
           <p class="text-sm text-gray-500">On</p>
           <p class="text-sm text-gray-500">Date: {{  }}</p>
         </div>
-        <div class="mt-4 space-y-2">
+        <!-- <div class="mt-4 space-y-2">
           <span>{{ itemToDelete.name }}</span>
           <span>{{ itemToDelete.customer }}</span>
           <span>{{ itemToDelete.customerEmail }}</span>
@@ -281,7 +336,7 @@ onMounted(async () => {
           <span>{{ itemToDelete.serialNumber }}</span>
           <span>{{ itemToDelete.paidVia.name }}</span>
           <span>{{ itemToDelete.date }}</span>
-        </div>
+        </div> -->
       </div>
 
       
@@ -329,122 +384,287 @@ onMounted(async () => {
     </Dialog>
 
     <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
-      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Receipt</h3>
-      <form @submit.prevent="addReceipt" class="space-y-4 mt-4">
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Customer Name</label>
-          <input 
+      <h3 class="font-semibold text-gray-600 dark:text-gray-400">Add New Receipt</h3>
+      <form @submit.prevent="addReceipt" class="mt-4">
+        <div class="space-y-4" v-if="showAdditionalFields">
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Product name</label>
+            <input 
             id="name" 
-            v-model="receipt.customer" 
+            v-model="product.name" 
             type="text" 
-            class="w-full p-2 border border-gray-300 rounded-md" 
-            placeholder="Enter customer name" required
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter product" required
             :class="[
               isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
             ]"
-          />
-        </div>
+            />
+          </div>
 
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Customer Number</label>
-          <input 
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Description</label>
+            <input 
             id="name" 
-            v-model="receipt.customerNumber" 
+            v-model="product.description" 
             type="text" 
-            class="w-full p-2 border border-gray-300 rounded-md" 
-            placeholder="Enter customer number" required
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter description" required
             :class="[
               isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
             ]"
-          />
-        </div>
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Category</label>
+            <Select 
+              v-model="product.category"          
+              :options="categories"                
+              optionLabel="name"                  
+              placeholder="Select a Category"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
 
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Customer email</label>
-          <input 
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Price</label>
+            <input 
             id="name" 
-            v-model="receipt.customerEmail" 
-            type="text" 
-            class="w-full p-2 border border-gray-300 rounded-md" 
-            placeholder="Enter customer email" required
-            :class="[
-              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-            ]"
-          />
-        </div>
-
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Amount</label>
-          <input 
-            id="name" 
-            v-model="receipt.amount" 
+            v-model="product.price" 
             type="number" 
-            class="w-full p-2 border border-gray-300 rounded-md" 
-            placeholder="Enter serial number" required
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter price" required
             :class="[
               isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
             ]"
-          />
-        </div>
-
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Serial Number</label>
-          <input 
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Color</label>
+            <input 
             id="name" 
-            v-model="receipt.serialNumber" 
+            v-model="product.color" 
             type="text" 
-            class="w-full p-2 border border-gray-300 rounded-md" 
-            placeholder="Enter serial number" required
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter color" required
             :class="[
               isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
             ]"
-          />
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Size</label>
+            <input 
+            id="name" 
+            v-model="product.size" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter size" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Grade</label>
+            <Select 
+              v-model="product.grade"          
+              :options="grades"                
+              optionLabel="name"                  
+              placeholder="Select a Grade"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Swap ?</label>
+            <Select 
+              v-model="product.swapIn"          
+              :options="swaps"                
+              optionLabel="name"                  
+              placeholder="Swap?"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Serial No</label>
+            <input 
+            id="name" 
+            v-model="product.serialNumber" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter Serial No" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Supplier</label>
+            <input 
+            id="name" 
+            v-model="product.supplier" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter supplier" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
         </div>
 
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Mode of payment</label>
-          <Select 
-            v-model="receipt.paidVia"          
-            :options="modeOfPayment"                
-            optionLabel="name"                  
-            placeholder="Select a Grade"
-            :style="{
-              width: '100%',
-              height: '2.6rem',
-              padding: '0.2rem', 
-              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
-              borderRadius: '0.375rem', 
-              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
-              color: isDarkMode ? '#D1D5DB' : '#1F2937'
-            }"
-          />
+        <div v-else class="space-y-4">
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Customer Name</label>
+            <input 
+              id="name" 
+              v-model="receipt.customer" 
+              type="text" 
+              class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+              placeholder="Enter customer name" required
+              :class="[
+                isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+              ]"
+            />
+          </div>
+  
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Customer Number</label>
+            <input 
+              id="name" 
+              v-model="receipt.customerNumber" 
+              type="text" 
+              class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+              placeholder="Enter customer number" required
+              :class="[
+                isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+              ]"
+            />
+          </div>
+  
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Customer email</label>
+            <input 
+              id="name" 
+              v-model="receipt.customerEmail" 
+              type="text" 
+              class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+              placeholder="Enter customer email" required
+              :class="[
+                isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+              ]"
+            />
+          </div>
+  
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Amount</label>
+            <input 
+              id="name" 
+              v-model="receipt.amount" 
+              type="number" 
+              class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+              placeholder="Enter serial number" required
+              :class="[
+                isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+              ]"
+            />
+          </div>
+  
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Serial Number</label>
+            <input 
+              id="name" 
+              v-model="receipt.serialNumber" 
+              type="text" 
+              class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+              placeholder="Enter serial number" required
+              :class="[
+                isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+              ]"
+            />
+          </div>
+  
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Mode of payment</label>
+            <Select 
+              v-model="receipt.paidVia"          
+              :options="modeOfPayment"                
+              optionLabel="name"                  
+              placeholder="Select a Grade"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
+  
+          <div>
+            <label for="name" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Swap ?</label>
+            <Select 
+              v-model="receipt.swap"          
+              :options="swaps"                
+              optionLabel="name"                  
+              placeholder="Is this a swap?"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
         </div>
 
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Swap ?</label>
-          <Select 
-            v-model="receipt.swap"          
-            :options="swaps"                
-            optionLabel="name"                  
-            placeholder="Is this a swap?"
-            :style="{
-              width: '100%',
-              height: '2.6rem',
-              padding: '0.2rem', 
-              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
-              borderRadius: '0.375rem', 
-              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
-              color: isDarkMode ? '#D1D5DB' : '#1F2937'
-            }"
-          />
-        </div>
-
-        <div class="flex justify-end gap-4 mt-6">
-          <button type="button" @click="addDrawerVisible = false" class="text-gray-500 hover:text-gray-600 -mt-2">Cancel</button>
+        <div class="flex justify-end space-x-4 mt-4 fixed bottom-2 right-4">
+          <button type="button" @click="addDrawerVisible = false" class="text-gray-500 hover:text-gray-600 -mt-2 text-xs md:text-sm py-1 px-2">Cancel</button>
+          <button v-if="receipt.swap?.name === 'Yes' && !showAdditionalFields && isReceiptComplete" 
+            type="button" 
+            @click="nextFields" 
+            class="py-1 px-2 rounded-md mb-4 flex items-center justify-center gap-2 transition-all duration-300 text-xs md:text-sm"
+            style="background-color: #4c5270; color: white; border-color: #4c5270;"
+          >
+            Next
+            <i class="text-xs md:text-sm pi pi-angle-right"></i>
+          </button>
           <button
+            v-if="receipt.swap?.name === 'No' || (receipt.swap?.name === 'Yes' && showAdditionalFields)"
             type="submit"
-            :disabled="isAddingReceipt"
-            class="p-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
+            :disabled="isAddingReceipt || receipt.swap?.name === 'Yes' && !product"
+            class="py-1 px-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300 text-xs md:text-sm"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
           >
             <i v-if="isAddingReceipt" class="pi pi-spin pi-spinner"></i>
@@ -461,7 +681,7 @@ onMounted(async () => {
 
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[680px]">
       <div class="flex justify-between items-center pb-4">
-        <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Receipts</h3>
+        <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Items ({{ store.receipts.length }})</h3>
         <div class="flex justify-between items-center mb-4">
         </div>
         <div class="flex gap-x-2">

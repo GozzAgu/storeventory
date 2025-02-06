@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useInvStore } from '@/stores/inventory';
-import type { InventoryData } from '~/types/inventory';
 
 const authStore = useAuthStore();
 const store = useInvStore();
@@ -129,8 +128,8 @@ const addInventory = async () => {
       swapIn: product.value.swapIn,
       serialNumber: product.value.serialNumber,
       supplier: product.value.supplier,
-      dateIn: 'today',
-      dateOut: 'today',
+      dateIn: new Date().toISOString().split("T")[0],
+      dateOut: '--',
       isSold: false,
       inventoryOf: authStore.currentUser.id,
     };
@@ -244,163 +243,165 @@ onMounted(async() => {
     <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
       <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Inventory</h3>
       <form @submit.prevent="addInventory" class="space-y-4 mt-4">
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Product name</label>
-          <input 
-          id="name" 
-          v-model="product.name" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter product" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
-        </div>
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Product name</label>
+            <input 
+            id="name" 
+            v-model="product.name" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter product" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
 
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
-          <input 
-          id="name" 
-          v-model="product.description" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter description" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
-        </div>
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Category</label>
-          <Select 
-            v-model="product.category"          
-            :options="categories"                
-            optionLabel="name"                  
-            placeholder="Select a Category"
-            :style="{
-              width: '100%',
-              height: '2.6rem',
-              padding: '0.2rem', 
-              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
-              borderRadius: '0.375rem', 
-              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
-              color: isDarkMode ? '#D1D5DB' : '#1F2937'
-            }"
-          />
-        </div>
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Description</label>
+            <input 
+            id="name" 
+            v-model="product.description" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter description" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Category</label>
+            <Select 
+              v-model="product.category"          
+              :options="categories"                
+              optionLabel="name"                  
+              placeholder="Select a Category"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
 
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Price</label>
-          <input 
-          id="name" 
-          v-model="product.price" 
-          type="number" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter price" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
-        </div>
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Color</label>
-          <input 
-          id="name" 
-          v-model="product.color" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter color" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
-        </div>
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Price</label>
+            <input 
+            id="name" 
+            v-model="product.price" 
+            type="number" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter price" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Color</label>
+            <input 
+            id="name" 
+            v-model="product.color" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter color" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
 
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Size</label>
-          <input 
-          id="name" 
-          v-model="product.size" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter size" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
-        </div>
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Grade</label>
-          <Select 
-            v-model="product.grade"          
-            :options="grades"                
-            optionLabel="name"                  
-            placeholder="Select a Grade"
-            :style="{
-              width: '100%',
-              height: '2.6rem',
-              padding: '0.2rem', 
-              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
-              borderRadius: '0.375rem', 
-              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
-              color: isDarkMode ? '#D1D5DB' : '#1F2937'
-            }"
-          />
-        </div>
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Size</label>
+            <input 
+            id="name" 
+            v-model="product.size" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter size" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Grade</label>
+            <Select 
+              v-model="product.grade"          
+              :options="grades"                
+              optionLabel="name"                  
+              placeholder="Select a Grade"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
 
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Swap ?</label>
-          <Select 
-            v-model="product.swapIn"          
-            :options="swaps"                
-            optionLabel="name"                  
-            placeholder="Swap?"
-            :style="{
-              width: '100%',
-              height: '2.6rem',
-              padding: '0.2rem', 
-              border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
-              borderRadius: '0.375rem', 
-              backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
-              color: isDarkMode ? '#D1D5DB' : '#1F2937'
-            }"
-          />
-        </div>
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Serial No</label>
-          <input 
-          id="name" 
-          v-model="product.serialNumber" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter Serial No" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
-        </div>
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Swap ?</label>
+            <Select 
+              v-model="product.swapIn"          
+              :options="swaps"                
+              optionLabel="name"                  
+              placeholder="Swap?"
+              :style="{
+                width: '100%',
+                height: '2.3rem',
+                padding: '0.05rem', 
+                border: isDarkMode ? '1px solid #4A4A4A' : '1px solid #D1D5DB', 
+                borderRadius: '0.375rem', 
+                backgroundColor: isDarkMode ? '#201F2A' : '#CDCFD9', 
+                color: isDarkMode ? '#D1D5DB' : '#1F2937'
+              }"
+            />
+          </div>
+          <div>
+            <label for="name" class="block text-xs text-gray-600 dark:text-gray-400">Serial No</label>
+            <input 
+            id="name" 
+            v-model="product.serialNumber" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter Serial No" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
 
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-600 dark:text-gray-400">Supplier</label>
-          <input 
-          id="name" 
-          v-model="product.supplier" 
-          type="text" 
-          class="w-full p-2 border border-gray-300 rounded-md" 
-          placeholder="Enter supplier" required
-          :class="[
-            isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
-          ]"
-           />
+          <div>
+            <label for="email" class="block text-xs text-gray-600 dark:text-gray-400">Supplier</label>
+            <input 
+            id="name" 
+            v-model="product.supplier" 
+            type="text" 
+            class="w-full p-[0.3em] border border-gray-300 rounded-md" 
+            placeholder="Enter supplier" required
+            :class="[
+              isDarkMode ? 'bg-dark-bg border-gray-600 text-light-text' : 'bg-light-bg border-gray-300 text-dark-text',
+            ]"
+            />
+          </div>
         </div>
 
         <div class="flex justify-end space-x-4 mt-4 fixed bottom-2 right-4">
-          <button type="button" @click="addDrawerVisible = false" class="text-gray-500 hover:text-gray-600 -mt-2">Cancel</button>
+          <button type="button" @click="addDrawerVisible = false" class="text-gray-500 hover:text-gray-600 -mt-2 py-1 px-2">Cancel</button>
           <button
             type="submit"
             :disabled="isAddingInventory"
-            class="p-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
+            class="py-1 px-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
           >
             <i v-if="isAddingInventory" class="pi pi-spin pi-spinner"></i>
@@ -415,10 +416,9 @@ onMounted(async() => {
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all products in inventory</p>
     </div>
 
-    <!-- Table Section -->
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[680px]">
       <div class="flex justify-between items-center pb-4">
-        <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Inventory</h3>
+        <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Items ({{ store.inventory.length }})</h3>
         <div class="flex justify-between items-center mb-4">
         </div>
         <div class="flex gap-x-2">
@@ -438,7 +438,7 @@ onMounted(async() => {
       </div>
 
       <div class="flex flex-col h-[400px] md:h-[510px]">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto table-container">
           <div v-if="store.inventory.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -474,11 +474,9 @@ onMounted(async() => {
                   @click="toggleCategoryDropdown"
                 >
                   CATEGORY
-                  <!-- Category Dropdown Toggle -->
                   <span v-if="showCategoryDropdown">▼</span>
                   <span v-else>▲</span>
                 </th>
-                <!-- <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">INV ID</th> -->
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">PRODUCT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PRICE</th>
@@ -514,7 +512,6 @@ onMounted(async() => {
                 class="hover:bg-light-bg hover:dark:bg-dark-bg">
                 <td class="py-2 px-2 text-dark-text dark:text-light-text whitespace-nowrap">{{ calculateIndex(index) }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.category.name }}</td>
-                <!-- <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">INV-{{ inventory.id }}</td> -->
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-lighter-bg dark:bg-darker-bg">{{ inventory.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.description }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">${{ inventory.price }}</td>
@@ -548,7 +545,6 @@ onMounted(async() => {
         </div>
       </div>
 
-      <!-- Pagination -->
       <div class="flex justify-between items-center mt-4">
         <button 
           @click="currentPage > 1 && (currentPage--)" :disabled="currentPage === 1"
@@ -570,3 +566,15 @@ onMounted(async() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.table-container::-webkit-scrollbar {
+  display: none;
+}
+
+.table-container {
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>
