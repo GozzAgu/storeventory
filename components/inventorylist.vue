@@ -416,7 +416,7 @@ onMounted(async() => {
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all products in inventory</p>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[550px] md:h-[680px]">
+    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg h-[470px] md:h-[680px]">
       <div class="flex justify-between items-center pb-4">
         <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Items ({{ store.inventory.length }})</h3>
         <div class="flex justify-between items-center mb-4">
@@ -437,7 +437,7 @@ onMounted(async() => {
         </div>
       </div>
 
-      <div class="flex flex-col h-[400px] md:h-[510px]">
+      <div class="flex flex-col h-[320px] md:h-[510px]">
         <div class="overflow-x-auto table-container">
           <div v-if="store.inventory.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">
             <svg
@@ -550,7 +550,7 @@ onMounted(async() => {
           @click="currentPage > 1 && (currentPage--)" :disabled="currentPage === 1"
           class="bg-gray-200 dark:bg-gray-600 text-dark-text dark:text-light-text text-sm px-4 py-2 rounded shadow"
         >
-          Previous
+          Prev
         </button>
         <span class="text-gray-600 dark:text-gray-300 text-xs md:text-sm">
           Page {{ currentPage }} of {{ Math.ceil(store.inventory.length / itemsPerPage) }}
