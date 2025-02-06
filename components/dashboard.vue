@@ -6,12 +6,12 @@ import { useReceiptStore } from '@/stores/receipt';
 const invStore = useInvStore();
 const receiptStore = useReceiptStore();
 
-const stats = [
+const stats = computed(() => [
   { title: 'Total Inventory', value: invStore.inventory.length, icon: 'pi pi-shopping-cart', color: 'bg-blue-500' },
   { title: 'Total Receipts', value: receiptStore.receipts.length, icon: 'pi pi-check-circle', color: 'bg-yellow-500' },
   { title: 'Customers', value: '1,100', icon: 'pi pi-users', color: 'bg-green-500' },
   { title: 'Revenue', value: '$45,000', icon: 'pi pi-dollar', color: 'bg-purple-500' },
-];
+]);
 
 const recentActivities = [
   { description: 'New customer registered: John Doe', time: '30 mins ago' },
