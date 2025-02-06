@@ -34,6 +34,7 @@ const dialogBackgroundColor = computed(() =>
 const nextFields = () => {
   showAdditionalFields.value = true;
 };
+
 const modeOfPayment = [
   { name: 'Cash' },
   { name: 'Bank Transfer' },
