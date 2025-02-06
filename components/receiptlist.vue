@@ -4,6 +4,8 @@ import { useReceiptStore } from '@/stores/receipt';
 import { useInvStore } from '@/stores/inventory';
 import { ref, computed, onMounted } from 'vue';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc } from "firebase/firestore";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const authStore = useAuthStore();
 const store = useReceiptStore();
@@ -122,6 +124,10 @@ const openReceiptDialog = (receipt: any) => {
 const closeDeleteDialog = () => {
   deleteDialogVisible.value = false;
   receiptToDelete.value = null;
+};
+
+const closeReceiptDialog = () => {
+  showModal.value = false;
 };
 
 const addReceipt = async () => {
@@ -316,6 +322,20 @@ const isReceiptComplete = computed(() => {
   );
 });
 
+const downloadReceipt = () => {
+  const receiptElement = receipt.value;
+
+  html2canvas(receiptElement, { scale: 2 }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgWidth = 80; // Adjust for receipt size
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+    pdf.save("receipt.pdf");
+  });
+};
+
 onMounted(async () => {
   if (authStore.currentUser) {
     await store.fetchReceipts();
@@ -344,7 +364,7 @@ onMounted(async () => {
         <h3 class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-100">Stoventory Receipt</h3>
       </template>
 
-      <div class="receipt bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-800 dark:text-gray-100 w-80 mx-auto font-mono border border-gray-300">
+      <div id="receipt" ref="receipt" class="receipt bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-800 dark:text-gray-100 w-80 mx-auto font-mono border border-gray-300">
         <div class="text-center border-b border-dashed border-gray-400 pb-3">
           <h2 class="font-bold">{{ authStore.currentUser?.adminName }}</h2>
           <p class="text-xs text-gray-500">Official Receipt</p>
@@ -395,7 +415,7 @@ onMounted(async () => {
             <span class="font-semibold">Paid Via:</span>
             <span>{{ itemToDelete.paidVia.name }}</span>
           </div>
-          <div class="flex justify-between text-lg font-bold mt-2">
+          <div class="flex justify-between text-xs font-bold mt-2">
             <span>Total:</span>
             <span>${{ itemToDelete.amount }}</span>
           </div>
@@ -411,7 +431,13 @@ onMounted(async () => {
       <div class="flex justify-end gap-4 mt-6">
         <button
           class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
-          @click=""
+          @click="closeReceiptDialog"
+        >
+          Cancel
+        </button>
+        <button
+          class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
+          @click="downloadReceipt"
         >
           Download
         </button>

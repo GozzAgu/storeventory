@@ -15,6 +15,8 @@
     "@primevue/themes": "^4.2.3",
     "chart.js": "^4.4.7",
     "firebase": "^11.2.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
     "nuxt": "^3.14.1592",
     "pinia": "^2.2.6",
     "primeicons": "^7.0.0",
