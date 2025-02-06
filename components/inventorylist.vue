@@ -425,7 +425,7 @@ onMounted(async() => {
           <button 
             @click="exportCSV"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
-            class="ttext-xs md:text-sm p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            class="text-xs md:text-sm p-2 rounded-md shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
             <i class="text-xs md:text-sm pi pi-external-link"></i> Export
           </button>
           <button 
