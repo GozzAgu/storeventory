@@ -46,10 +46,21 @@ const filteredInventory = computed(() => {
 });
 
 const paginatedInventory = computed(() => {
+  const sortedInventory = [...store.inventory].sort((a, b) => {
+    return new Date(b.dateIn).getTime() - new Date(a.dateIn).getTime();
+  });
+
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return store.inventory.slice(start, end);
+  return sortedInventory.slice(start, end);
 });
+
+const formatDateTime = (isoString: string) => {
+  const dateTime = new Date(isoString);
+  const date = dateTime.toLocaleDateString(); // Format date (e.g., "10/15/2023")
+  const time = dateTime.toLocaleTimeString(); // Format time (e.g., "12:34:56 PM")
+  return { date, time };
+};
 
 const selectedCategory = ref<Category | null>(null);
 
@@ -147,41 +158,16 @@ const addInventory = async () => {
   isAddingInventory.value = true;
   try {
     const newProduct = {
-      name: product.value.name,
-      description: product.value.description,
-      category: product.value.category,
+      ...product.value,
       price: parseFloat(product.value.price),
-      color: product.value.color,
-      size: product.value.size,
-      grade: product.value.grade,
-      swapIn: product.value.swapIn,
-      serialNumber: product.value.serialNumber,
-      supplier: product.value.supplier,
-      dateIn: new Date().toISOString().split("T")[0],
+      dateIn: new Date().toISOString(),
       dateOut: '--',
-      isSold: false,
       inventoryOf: authStore.currentUser.id,
     };
 
     await store.addInventoryItem(newProduct as any);
     
-    product.value = {
-      name: '',
-      description: '',
-      category: { name: '' },
-      price: '',
-      color: '',
-      size: '',
-      grade: '',
-      swapIn: '',
-      serialNumber: '',
-      supplier: '',
-      dateIn: '',
-      dateOut: '',
-      isSold: false,
-      inventoryOf: '',
-    };
-
+    resetProduct();
     await store.fetchInventory();
     addDrawerVisible.value = false;
   } catch (error) {
@@ -517,6 +503,7 @@ onMounted(async() => {
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SERIAL NO</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SUPPLIER</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DATE IN</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">TIME IN</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DATE OUT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap"></th>
               </tr>
@@ -557,7 +544,8 @@ onMounted(async() => {
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.swapIn.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.serialNumber }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.supplier }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.dateIn }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ formatDateTime(inventory.dateIn).date }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ formatDateTime(inventory.dateIn).time }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ inventory.dateOut }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
                   <button @click="duplicateInventory(inventory)" class="text-indigo-900 hover:text-indigo-700">

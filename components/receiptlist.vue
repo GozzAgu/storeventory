@@ -183,7 +183,7 @@ const addReceipt = async () => {
       category: inventoryDetails.category || receipt.value.category,
       color: inventoryDetails.color || receipt.value.color,
       size: inventoryDetails.size || receipt.value.size,
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString(), // Include both date and time
       swap: receipt.value.swap,
       paidVia: receipt.value.paidVia,
       serialNumber: inventoryDetails.serialNumber || receipt.value.serialNumber,
@@ -192,7 +192,7 @@ const addReceipt = async () => {
       receiptNumber: "",
     };
 
-    if(receipt.value.swap?.name === 'Yes') {
+    if (receipt.value.swap?.name === 'Yes') {
       const newProduct = {
         name: product.value.name,
         description: product.value.description,
@@ -208,9 +208,10 @@ const addReceipt = async () => {
         dateOut: "--",
         isSold: false,
         inventoryOf: authStore.currentUser?.id,
-      }
+      };
       invStore.addInventoryItem(newProduct as any);
     }
+
     const receiptsCollection = collection(nuxtApp.$firestore, "receipts");
     const docRef = await addDoc(receiptsCollection, newReceipt);
 
@@ -300,10 +301,21 @@ const calculateIndex = (index: any) => {
 };
 
 const paginatedInventory = computed(() => {
+  const sortedReceipts = [...store.receipts].sort((a, b) => {
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return store.receipts.slice(start, end);
+  return sortedReceipts.slice(start, end);
 });
+
+const formatDateTime = (isoString: string) => {
+  const dateTime = new Date(isoString);
+  const date = dateTime.toLocaleDateString();
+  const time = dateTime.toLocaleTimeString();
+  return { date, time };
+};
 
 const filteredReceipts = computed(() => {
   if (!selectedCategory.value) {
@@ -840,6 +852,7 @@ onMounted(async () => {
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">SERIAL NO</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">PAID VIA</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DATE</th>
+                <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">TIME</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap"></th>
               </tr>
               <div v-if="showCategoryDropdown" class="absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-lg rounded-md mt-2 w-[200px] z-20">
@@ -873,7 +886,12 @@ onMounted(async () => {
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.swap.name }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.serialNumber }}</td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.paidVia.name }}</td>
-                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">{{ receipt.date }}</td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
+                  {{ formatDateTime(receipt.date).date }}
+                </td>
+                <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
+                  {{ formatDateTime(receipt.date).time }}
+                </td>
                 <td class="py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">
                   <button @click="openReceiptDialog(receipt)" class="text-indigo-900 hover:text-indigo-700">
                     <i class="text-xs md:text-base pi pi-receipt"></i>
