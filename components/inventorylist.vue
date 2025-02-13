@@ -458,7 +458,7 @@ onMounted(async () => {
 
       <div class="flex flex-col h-[320px] md:h-[510px]">
         <div class="overflow-x-auto table-container">
-          <div v-if="loading" class="flex items-center justify-center h-full">
+          <div v-if="loading" class="flex items-center justify-center h-[320px] md:h-[510px]">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
           </div>
           <div v-else-if="store.inventory.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">

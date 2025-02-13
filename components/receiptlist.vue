@@ -119,6 +119,11 @@ const openDeleteDialog = (receipt: any) => {
 };
 
 const openReceiptDialog = (receipt: any) => {
+  console.log("Selected Receipt:", receipt);
+  if (!receipt) {
+    console.error("No receipt selected.");
+    return;
+  }
   itemToDelete.value = receipt;
   showModal.value = true;
 };
@@ -130,6 +135,7 @@ const closeDeleteDialog = () => {
 
 const closeReceiptDialog = () => {
   showModal.value = false;
+  addDrawerVisible.value = false;
 };
 
 const addReceipt = async () => {
@@ -377,12 +383,13 @@ onMounted(async () => {
         <h3 class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-100">Stoventory Receipt</h3>
       </template>
 
-      <div id="receipt" ref="receipt" class="receipt bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-800 dark:text-gray-100 w-80 mx-auto font-mono border border-gray-300">
+      <!-- Add null check for itemToDelete -->
+      <div v-if="itemToDelete" id="receipt" ref="receipt" class="receipt bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-800 dark:text-gray-100 w-80 mx-auto font-mono border border-gray-300">
         <div class="text-center border-b border-dashed border-gray-400 pb-3">
           <h2 class="font-bold">{{ authStore.currentUser?.adminName }}</h2>
           <p class="text-xs text-gray-500">Official Receipt</p>
-          <p class="text-xs">Issued by: <strong>{{ issuedBy }}</strong></p>
-          <p class="text-xs">Date: <strong>{{ itemToDelete.date }}</strong></p>
+          <p class="text-xs">Issued by: <strong>{{ itemToDelete.issuedBy }}</strong></p>
+          <p class="text-xs">Date: <strong>{{ formatDateTime(itemToDelete.date).date }}</strong></p>
         </div>
 
         <div class="mt-4 text-xs">
@@ -419,14 +426,14 @@ onMounted(async () => {
           </div>
           <div class="flex justify-between">
             <span class="font-semibold">Swap Item:</span>
-            <span>{{ itemToDelete.swap.name }}</span>
+            <span>{{ itemToDelete.swap?.name }}</span>
           </div>
         </div>
 
         <div class="border-t border-dashed border-gray-400 mt-4 pt-3 text-xs">
           <div class="flex justify-between">
             <span class="font-semibold">Paid Via:</span>
-            <span>{{ itemToDelete.paidVia.name }}</span>
+            <span>{{ itemToDelete.paidVia?.name }}</span>
           </div>
           <div class="flex justify-between text-xs font-bold mt-2">
             <span>Total:</span>
@@ -440,7 +447,10 @@ onMounted(async () => {
         </div>
       </div>
 
-      
+      <div v-else class="p-6 text-center text-gray-600 dark:text-gray-400">
+        <p>No receipt data available.</p>
+      </div>
+
       <div class="flex justify-end gap-4 mt-6">
         <button
           class="text-xs md:text-base bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-md shadow hover:shadow-lg transition-all"
@@ -456,7 +466,7 @@ onMounted(async () => {
         </button>
       </div>
     </Dialog>
-
+    
     <Dialog 
       v-model:visible="deleteDialogVisible" 
       :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
@@ -803,7 +813,7 @@ onMounted(async () => {
   
       <div class="flex flex-col h-[320px] md:h-[510px]">
         <div class="overflow-x-auto table-container">
-          <div v-if="loading" class="flex items-center justify-center h-full">
+          <div v-if="loading" class="flex items-center justify-center h-[320px] md:h-[510px]">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
           </div>
           <div v-else-if="store.receipts.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">

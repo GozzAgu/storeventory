@@ -212,15 +212,13 @@ const deleteStaff = async (staffId: string) => {
 };
 
 onMounted(async () => {
-  try {
+  if (authStore.currentUser) {
     loading.value = true;
-    if (authStore.currentUser?.accountType === 'SuperAdmin') {
-      await authStore.fetchManagers();
-    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await authStore.fetchManagers();
     loading.value = false;
-  } catch (error) {
-    console.error('Error loading staff list:', error);
-    loading.value = false;
+  } else {
+    console.error('No current user found');
   }
 });
 
@@ -275,8 +273,11 @@ onMounted(async () => {
       </button>
     </div>
 
-    <div v-if="loading" class="flex justify-center items-center w-full h-full">
-      <i class="pi pi-spinner pi-spin text-4xl text-gray-500 dark:text-gray-300"></i>
+    <div v-if="loading" class="flex items-center justify-center h-[320px] md:h-[510px]">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
+    </div>
+    <div v-else-if="authStore.staffList.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
+      <p class="text-gray-600 dark:text-gray-400">No staff members added yet.</p>
     </div>
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-2">
@@ -301,12 +302,6 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- No Staff Message -->
-    <div v-if="loading = false && authStore.staffList.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-lg mt-6">
-      <p class="text-gray-600 dark:text-gray-400">No staff members added yet.</p>
-    </div>
-
-    <!-- Create Staff Drawer -->
     <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
       <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Staff</h3>
       <form @submit.prevent="addStaff" class="space-y-4 mt-4">

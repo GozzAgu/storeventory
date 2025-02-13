@@ -3,7 +3,9 @@ import { ref, computed } from 'vue';
 import { useReceiptStore } from '@/stores/receipt';
 
 const store = useReceiptStore();
+const authStore = useAuthStore();
 const openCustomerIndex = ref<number | null>(null);
+const loading = ref(false);
 
 const toggleCustomerDetails = (index: number) => {
   openCustomerIndex.value = openCustomerIndex.value === index ? null : index;
@@ -29,7 +31,17 @@ const groupedReceiptsByPhone = computed(() => {
 });
 
 onMounted(() => {
-  store.fetchReceipts();
+});
+
+onMounted(async () => {
+  if (authStore.currentUser) {
+    loading.value = true;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    store.fetchReceipts();
+    loading.value = false;
+  } else {
+    console.error('No current user found');
+  }
 });
 </script>
 
@@ -40,40 +52,45 @@ onMounted(() => {
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage your customers</p>
     </div>
 
-    <div v-for="(group, index) in groupedReceiptsByPhone" :key="index" class="bg-lighter-bg dark:bg-darker-bg p-4 rounded-md mb-2">
-      <div class="flex justify-between items-center cursor-pointer" @click="toggleCustomerDetails(index)">
-        <h3 class="text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-100">
-          {{ group.receipts[0].customer }} <!-- Display first customer's name -->
-        </h3>
-        <span class="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-          {{ group.phoneNumber }}
-        </span>
-      </div>
-
-      <transition name="accordion">
-        <div v-if="isCustomerOpen(index)" class="mt-4 overflow-hidden">
-          <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-            Email: {{ group.receipts[0].customerEmail }} <!-- Use first receipt's email -->
-          </p>
-
-          <div v-if="group.receipts.length > 0" class="mt-4">
-            <h4 class="text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-100">Purchased Products</h4>
-            <ul class="list-disc pl-5 space-y-2 text-gray-600 dark:text-gray-400">
-              <li v-for="(receipt, receiptIndex) in group.receipts" :key="receiptIndex">
-                <div class="flex flex-col gap-2">
-                  <span class="text-xs md:text-sm font-semibold">{{ receipt.name }}</span>
-                  <span class="text-xs md:text-sm font-semibold">Serial no-{{ receipt.serialNumber }}</span>
-
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </transition>
+    <div v-if="loading" class="flex items-center justify-center h-[320px] md:h-[510px]">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
     </div>
 
-    <div v-if="groupedReceiptsByPhone.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md mt-6">
+    <div v-else-if="groupedReceiptsByPhone.length === 0" class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md mt-6">
       <p class="text-gray-600 dark:text-gray-400">No customers added yet.</p>
+    </div>
+
+    <div v-else>
+      <div v-for="(group, index) in groupedReceiptsByPhone" :key="index" class="bg-lighter-bg dark:bg-darker-bg p-4 rounded-md mb-2">
+        <div class="flex justify-between items-center cursor-pointer" @click="toggleCustomerDetails(index)">
+          <h3 class="text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-100">
+            {{ group.receipts[0].customer }} <!-- Display first customer's name -->
+          </h3>
+          <span class="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+            {{ group.phoneNumber }}
+          </span>
+        </div>
+
+        <transition name="accordion">
+          <div v-if="isCustomerOpen(index)" class="mt-4 overflow-hidden">
+            <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+              Email: {{ group.receipts[0].customerEmail }}
+            </p>
+
+            <div v-if="group.receipts.length > 0" class="mt-4">
+              <h4 class="text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-100">Purchased Products</h4>
+              <ul class="list-disc pl-5 space-y-2 text-gray-600 dark:text-gray-400">
+                <li v-for="(receipt, receiptIndex) in group.receipts" :key="receiptIndex">
+                  <div class="flex flex-col gap-2">
+                    <span class="text-xs md:text-sm font-semibold">{{ receipt.name }}</span>
+                    <span class="text-xs md:text-sm font-semibold">Serial no-{{ receipt.serialNumber }}</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </transition>
+      </div>
     </div>
   </div>
 </template>
