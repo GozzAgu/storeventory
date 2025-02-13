@@ -435,7 +435,7 @@ onMounted(async () => {
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all products in inventory</p>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md h-[470px] md:h-[680px]">
+    <div class="bg-lighter-bg dark:bg-darker-bg px-3 py-6 md:p-6 rounded-md h-[470px] md:h-[680px]">
       <div class="flex justify-between items-center pb-4">
         <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Items ({{ store.inventory.length }})</h3>
         <div class="flex justify-between items-center mb-4">
