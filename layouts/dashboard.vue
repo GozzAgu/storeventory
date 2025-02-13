@@ -161,7 +161,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="p-6 flex-1">
+      <div class="p-2 md:p-6 flex-1">
         <slot />
       </div>
     </div>

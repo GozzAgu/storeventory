@@ -2,6 +2,7 @@
 import Chart from 'primevue/chart';
 import { useInvStore } from '@/stores/inventory';
 import { useReceiptStore } from '@/stores/receipt';
+import { onBeforeRouteUpdate } from 'vue-router';
 
 const invStore = useInvStore();
 const receiptStore = useReceiptStore();
@@ -15,13 +16,65 @@ const stats = computed(() => [
 
 const recentActivities = ref<{ description: string; time: any }[]>([]);
 
+const populateRecentActivities = () => {
+  recentActivities.value = [];
+
+  const inventoryActivities = invStore.inventory
+    .slice(-2) // Get the last 2 inventory items
+    .map(item => ({
+      description: `${item.name} added to inventory`,
+      time: item.dateIn,
+    }));
+  recentActivities.value.push(...inventoryActivities);
+
+  const receiptActivities = receiptStore.receipts
+    .slice(-2)
+    .map(receipt => ({
+      description: `New receipt issued to ${receipt.customer}`,
+      time: receipt.date,
+    }));
+  recentActivities.value.push(...receiptActivities);
+
+  const uniqueCustomers = new Set<string>();
+  const customerActivities = receiptStore.receipts
+    .filter(receipt => {
+      if (!uniqueCustomers.has(receipt.customerNumber)) {
+        uniqueCustomers.add(receipt.customerNumber);
+        return true;
+      }
+      return false;
+    })
+    .slice(-2)
+    .map(receipt => ({
+      description: `New customer registered: ${receipt.customer}`,
+      time: receipt.date,
+    }));
+  recentActivities.value.push(...customerActivities);
+
+  recentActivities.value.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+  if (recentActivities.value.length > 6) {
+    recentActivities.value = recentActivities.value.slice(0, 6);
+  }
+};
+
 watch(() => invStore.inventory, (newInventory, oldInventory) => {
   if (newInventory.length > oldInventory.length) {
     const newItem = newInventory[newInventory.length - 1];
     recentActivities.value.unshift({
-      description: `Product "${newItem.name}" added to inventory`,
+      description: `${newItem.name} added to inventory`,
       time: newItem.dateIn,
     });
+
+    const inventoryCount = recentActivities.value.filter(activity => 
+      activity.description.includes('added to inventory')
+    ).length;
+    if (inventoryCount > 2) {
+      recentActivities.value = recentActivities.value.filter(activity => 
+        !activity.description.includes('added to inventory') || 
+        activity.time === newItem.dateIn
+      );
+    }
   }
 }, { deep: true });
 
@@ -33,19 +86,39 @@ watch(() => receiptStore.receipts, (newReceipts, oldReceipts) => {
       time: newReceipt.date,
     });
 
+    const receiptCount = recentActivities.value.filter(activity => 
+      activity.description.includes('New receipt issued to')
+    ).length;
+    if (receiptCount > 2) {
+      recentActivities.value = recentActivities.value.filter(activity => 
+        !activity.description.includes('New receipt issued to') || 
+        activity.time === newReceipt.date
+      );
+    }
+
     const phoneNumbers = new Set(oldReceipts.map(r => r.customerNumber));
     if (!phoneNumbers.has(newReceipt.customerNumber)) {
       recentActivities.value.unshift({
         description: `New customer registered: ${newReceipt.customer}`,
         time: newReceipt.date,
       });
+
+      const customerCount = recentActivities.value.filter(activity => 
+        activity.description.includes('New customer registered:')
+      ).length;
+      if (customerCount > 2) {
+        recentActivities.value = recentActivities.value.filter(activity => 
+          !activity.description.includes('New customer registered:') || 
+          activity.time === newReceipt.date
+        );
+      }
     }
   }
 }, { deep: true });
 
 watch([() => invStore.inventory, () => receiptStore.receipts], () => {
-  if (recentActivities.value.length > 10) {
-    recentActivities.value.pop();
+  if (recentActivities.value.length > 6) {
+    recentActivities.value = recentActivities.value.slice(0, 6);
   }
 }, { deep: true });
 
@@ -103,10 +176,18 @@ const chartOptions = {
   },
 };
 
-onMounted(() => {
-  invStore.fetchInventory();
-  receiptStore.fetchReceipts();
-})
+onMounted(async () => {
+  await invStore.fetchInventory();
+  await receiptStore.fetchReceipts();
+  populateRecentActivities();
+});
+
+onBeforeRouteUpdate(async (to, from, next) => {
+  await invStore.fetchInventory();
+  await receiptStore.fetchReceipts();
+  populateRecentActivities();
+  next();
+});
 </script>
 
 <template>

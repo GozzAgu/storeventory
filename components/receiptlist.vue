@@ -22,6 +22,7 @@ const nuxtApp = useNuxtApp();
 const itemToDelete = ref(null);
 const showModal = ref(false);
 const showAdditionalFields = ref(false);
+const loading = ref(false);
 
 const openCreateReceiptDrawer = () => {
   addDrawerVisible.value = true;
@@ -351,16 +352,15 @@ const downloadReceipt = () => {
 
 onMounted(async () => {
   if (authStore.currentUser) {
+    loading.value = true;
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await store.fetchReceipts();
     await invStore.fetchInventory();
-    if (!store.receipts) {
-      store.receipts = [];
-    }
+    loading.value = false;
   } else {
     console.error('No current user found');
   }
 });
-
 </script>
 
 <template>
@@ -803,21 +803,10 @@ onMounted(async () => {
   
       <div class="flex flex-col h-[320px] md:h-[510px]">
         <div class="overflow-x-auto table-container">
-          <div v-if="store.receipts.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 text-gray-400 dark:text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3 10h11M9 21H3a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v7m-5 9l5-5m0 0l-5-5m5 5H9"
-              />
-            </svg>
+          <div v-if="loading" class="flex items-center justify-center h-full">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
+          </div>
+          <div v-else-if="store.receipts.length === 0" class="flex flex-col items-center justify-center space-y-4 mt-24 md:mt-32">
             <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base">
               No receopt data available. Add new items to get started.
             </p>
