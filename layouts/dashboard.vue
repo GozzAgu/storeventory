@@ -156,8 +156,7 @@ onMounted(() => {
             :class="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
             @click="isDarkMode = !isDarkMode"
           ></i>
-
-          <i class="pi pi-user text-lg cursor-pointer transition-all duration-300 hover:bg-darker-bg hover:text-light-text rounded-md p-2"></i>
+          <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
         </div>
       </div>
 
