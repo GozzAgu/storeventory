@@ -280,23 +280,27 @@ onMounted(async () => {
       <p class="text-gray-600 dark:text-gray-400">No staff members added yet.</p>
     </div>
 
-    <div v-else class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-2">
+    <div v-else class="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-2">
       <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-md shadow-sm overflow-hidden md:transform md:transition-all md:hover:scale-105 hover:shadow-md md:hover:translate-y-1">
         <div class="p-4">
           <div class="border-b border-gray-800 pb-2 flex justify-between">
-            <h3 class="text-sm md:text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
+            <h3 class="text-[0.8rem] md:text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
             <i
               :class="staff.accountType === 'User' ? 'pi pi-lock text-gray-600 cursor-pointer' : 'pi pi-lock-open text-green-600 cursor-pointer'"
               @click="toggleAccountType(staff.id)"
             ></i>
           </div>
-          <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
-          <p class="text-xs md:text-sm mt-2 text-gray-700 dark:text-gray-300">Department: {{ staff.department }}</p>
-          <p class="text-xs md:text-sm mt-2 text-gray-700 dark:text-gray-300">Role: {{ staff.accountType }}</p>
+          <p class="text-[0.6rem] md:text-sm text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
+          <p class="text-[0.6rem] md:text-sm mt-2 text-gray-700 dark:text-gray-300">Dept: {{ staff.department }}</p>
+          <p class="text-[0.6rem] md:text-sm mt-2 text-gray-700 dark:text-gray-300">Role: {{ staff.accountType }}</p>
 
           <div class="mt-4 flex justify-between items-center">
-            <button @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600 text-xs md:text-sm">View & Edit</button>
-            <button @click="openDeleteDialog(staff)" class="text-red-500 hover:text-red-600 text-xs md:text-sm">Delete</button>
+            <button  @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600">
+              <i class="text-xs md:text-base pi pi-pencil"></i>
+            </button>
+            <button @click="openDeleteDialog(staff)" class="text-red-500 hover:text-red-600">
+              <i class="text-xs md:text-base pi pi-trash"></i>
+            </button>
           </div>
         </div>
       </div>

@@ -117,7 +117,7 @@ onMounted(() => {
               :key="item.label"
               :to="item.route"
               :class="[
-                'flex items-center space-x-4 p-2 rounded-md cursor-pointer hover:bg-darker-bg hover:text-light-text',
+                'flex items-center space-x-4 p-2 rounded-md cursor-pointer hover:bg-darker-bg hover:text-light-text text-xs',
                 { 'bg-hover-bg text-hover-text': isActive(item.route!) }
               ]"
               exact-active-class="bg-hover-bg text-hover-text"

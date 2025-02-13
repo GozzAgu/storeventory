@@ -21,6 +21,7 @@
     "pinia": "^2.2.6",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.5",
+    "tsparticles": "^3.8.1",
     "vue": "latest",
     "vue-router": "latest",
     "xlsx": "^0.18.5"

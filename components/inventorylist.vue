@@ -7,11 +7,15 @@ const addDrawerVisible = ref(false);
 const isDarkMode = useState('isDarkMode');
 const currentPage = ref(1);
 const itemsPerPage = ref(30);
-const isAddingInventory= ref(false);
+const isAddingInventory = ref(false);
 const showCategoryDropdown = ref(false);
+const showSwapDropdown = ref(false);
+const showGradeDropdown = ref(false);
+const showAvailabilityDropdown = ref(false);
 const deleteDialogVisible = ref(false);
 const itemToDelete = ref(null);
 const loading = ref(true);
+const isDrawerPinned = ref(false); // New state variable to track if the drawer is pinned
 
 const dialogBackgroundColor = computed(() =>
   isDarkMode.value ? '#201F2A' : '#FFFFFF'
@@ -37,6 +41,18 @@ const product = ref({
 
 const toggleCategoryDropdown = () => {
   showCategoryDropdown.value = !showCategoryDropdown.value;
+};
+
+const toggleSwapDropdown = () => {
+  showSwapDropdown.value = !showSwapDropdown.value;
+};
+
+const toggleGradeDropdown = () => {
+  showGradeDropdown.value = !showGradeDropdown.value;
+};
+
+const toggleAvailabilityDropdown = () => {
+  showAvailabilityDropdown.value = !showAvailabilityDropdown.value;
 };
 
 const filteredInventory = computed(() => {
@@ -71,21 +87,21 @@ const selectCategory = (category: Category | null) => {
 };
 
 const categories = ref([
-  { name: 'Phones'},
-  { name: 'Laptops'},
-  { name: 'Home Appliances'},
-  { name: 'Clothing'},
-  { name: 'Others'},
+  { name: 'Phones' },
+  { name: 'Laptops' },
+  { name: 'Home Appliances' },
+  { name: 'Clothing' },
+  { name: 'Others' },
 ]);
 
 const swaps = ref([
-  { name: 'Yes'},
-  { name: 'No'},
+  { name: 'Yes' },
+  { name: 'No' },
 ]);
 
 const grades = ref([
-  { name: 'New'},
-  { name: 'Used'},
+  { name: 'New' },
+  { name: 'Used' },
 ]);
 
 const resetProduct = () => {
@@ -150,7 +166,7 @@ const addInventory = async () => {
   }
 
   const serialExists = store.inventory.some(item => item.serialNumber === product.value.serialNumber);
-  
+
   if (serialExists) {
     alert('An inventory item with this serial number already exists.');
     return;
@@ -167,10 +183,14 @@ const addInventory = async () => {
     };
 
     await store.addInventoryItem(newProduct as any);
-    
+
     resetProduct();
     await store.fetchInventory();
-    addDrawerVisible.value = false;
+
+    // Only close the drawer if it's not pinned
+    if (!isDrawerPinned.value) {
+      addDrawerVisible.value = false;
+    }
   } catch (error) {
     console.error('Error adding inventory:', error);
   } finally {
@@ -192,7 +212,7 @@ const openCreateInventoryDrawer = () => {
 
 const exportCSV = () => {
   const csvContent = [
-    ['INV ID', 'Customer', 'Total', 'Issued On'], 
+    ['INV ID', 'Customer', 'Total', 'Issued On'],
     ...store.inventory.map(inv => [
       inv.name,
       inv.description,
@@ -211,6 +231,10 @@ const exportCSV = () => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+const pinDrawer = () => {
+  isDrawerPinned.value = !isDrawerPinned.value; // Toggle the pinned state
 };
 
 onMounted(async () => {
@@ -260,7 +284,19 @@ onMounted(async () => {
       </div>
     </Dialog>
     <Drawer v-model:visible="addDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
-      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Add New Inventory</h3>
+      <div class="flex justify-between">
+        <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">
+          Add New Inventory
+          <br />
+          <span v-if="isDrawerPinned" class="text-[0.7rem] font-thin text-green-500">Drawer is pinned</span>
+          <span v-else class="text-[0.7rem] font-thin text-orange-500">You can pin the drawer by clicking on the window icon</span>
+        </h3>
+        <i 
+          @click="pinDrawer" 
+          class="pi pi-window-maximize text-cyan-600 text-lg md:text-3xl"
+          :class="{ 'text-orange-500': isDrawerPinned }"
+        ></i>
+      </div>
       <form @submit.prevent="addInventory" class="space-y-4 mt-4">
         <div class="space-y-4">
           <div>
@@ -482,8 +518,12 @@ onMounted(async () => {
                   @click="toggleCategoryDropdown"
                 >
                   CATEGORY
-                  <span v-if="showCategoryDropdown">▼</span>
-                  <span v-else>▲</span>
+                  <span v-if="showCategoryDropdown">
+                    <i class="text-xs md:text-base pi pi-sort-up-fill"></i>
+                  </span>
+                  <span v-else>
+                    <i class="text-xs md:text-base pi pi-sort-down-fill"></i>
+                  </span>
                 </th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">PRODUCT</th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap">DESCRIPTION</th>

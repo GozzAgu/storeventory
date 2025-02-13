@@ -20,7 +20,7 @@ const populateRecentActivities = () => {
   recentActivities.value = [];
 
   const inventoryActivities = invStore.inventory
-    .slice(-2) // Get the last 2 inventory items
+    .slice(-2)
     .map(item => ({
       description: `${item.name} added to inventory`,
       time: item.dateIn,
@@ -169,6 +169,10 @@ const chartData = computed(() => ({
 }));
 
 const chartOptions = {
+  animation: {
+    duration: 1000,
+    easing: 'easeInOutQuad',
+  },
   plugins: {
     legend: {
       position: 'bottom',
@@ -192,42 +196,72 @@ onBeforeRouteUpdate(async (to, from, next) => {
 
 <template>
   <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div>
+      <p class="text-sm md:text-2xl font-semibold">Dashboard</p>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div
         v-for="(stat, index) in stats"
         :key="index"
         :class="`p-4 rounded-md text-white ${stat.color}`"
       >
         <div class="flex items-center space-x-4">
-          <i :class="`${stat.icon} text-3xl`"></i>
+          <i :class="`${stat.icon} text-lg md:text-3xl animate-bounce-once`"></i>
           <div>
-            <p class="text-2xl font-bold">{{ stat.value }}</p>
-            <p class="text-sm">{{ stat.title }}</p>
+            <p class="text-base md:text-2xl font-bold">{{ stat.value }}</p>
+            <p class="text-xs md:text-sm">{{ stat.title }}</p>
           </div>
         </div>
       </div>
     </div>
 
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
-      <h2 class="text-lg font-semibold mb-4">Recent Activities</h2>
-      <ul class="space-y-1">
+      <h2 class="text-base md:text-lg font-semibold mb-4">Recent Activities</h2>
+      <ul class="space-y-1 overflow-y-auto max-h-48">
         <li
           v-for="(activity, index) in recentActivities"
           :key="index"
-          class="flex justify-between items-center text-gray-600 dark:text-gray-400"
+          class="flex justify-between items-center text-gray-600 dark:text-gray-400 animate-fade-in"
         >
-          <span class="text-xs">{{ activity.description }}</span>
-          <span class="text-xs text-gray-400">{{ activity.time }}</span>
+          <span class="text-[0.6rem]">{{ activity.description }}</span>
+          <span class="text-[0.6rem] text-gray-400">{{ activity.time }}</span>
         </li>
       </ul>
     </div>
 
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
-      <h2 class="text-lg font-semibold mb-4">Performance Overview</h2>
+      <h2 class="text-base md:text-lg font-semibold mb-4">Performance Overview</h2>
       <Chart type="line" :data="chartData" :options="chartOptions" />
     </div>
   </div>
 </template>
 
 <style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce-once {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-once {
+  animation: bounce-once 1s ease-in-out 1; /* Run once */
+}
 </style>
