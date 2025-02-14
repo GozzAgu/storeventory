@@ -7,6 +7,20 @@ export const useReceiptStore = defineStore('receipts', {
     receipts: [] as ReceiptData[],
   }),
 
+  getters: {
+    totalRevenue: (state) => {
+      const total = state.receipts.reduce((total, receipt) => {
+        return total + parseFloat(receipt.amount);
+      }, 0);
+  
+      return total.toLocaleString('en-US', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    },
+  },
+
   actions: {
     async addReceipt(item: ReceiptData) {
       const nuxtApp = useNuxtApp()

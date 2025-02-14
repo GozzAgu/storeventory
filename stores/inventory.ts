@@ -7,6 +7,20 @@ export const useInvStore = defineStore('inventory', {
     inventory: [] as InventoryData[],
   }),
 
+  getters: {
+    totalInventory: (state) => {
+      const total = state.inventory.reduce((total, inventory) => {
+        return total + parseFloat(inventory.price);
+      }, 0);
+  
+      return total.toLocaleString('en-US', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    },
+  },
+
   actions: {
     async addInventoryItem(item: InventoryData) {
       const nuxtApp = useNuxtApp()

@@ -15,7 +15,7 @@ const showAvailabilityDropdown = ref(false);
 const deleteDialogVisible = ref(false);
 const itemToDelete = ref(null);
 const loading = ref(true);
-const isDrawerPinned = ref(false); // New state variable to track if the drawer is pinned
+const isDrawerPinned = ref(false);
 
 const dialogBackgroundColor = computed(() =>
   isDarkMode.value ? '#201F2A' : '#FFFFFF'
@@ -74,8 +74,8 @@ const paginatedInventory = computed(() => {
 
 const formatDateTime = (isoString: string) => {
   const dateTime = new Date(isoString);
-  const date = dateTime.toLocaleDateString(); // Format date (e.g., "10/15/2023")
-  const time = dateTime.toLocaleTimeString(); // Format time (e.g., "12:34:56 PM")
+  const date = dateTime.toLocaleDateString();
+  const time = dateTime.toLocaleTimeString();
   return { date, time };
 };
 
@@ -210,6 +210,8 @@ const openCreateInventoryDrawer = () => {
   addDrawerVisible.value = true;
 };
 
+const totalInventory = computed(() => store.totalInventory);
+
 const exportCSV = () => {
   const csvContent = [
     ['CATEGORY', 'PRODUCT', 'DESCRIPTION', 'PRICE', 'COLOR', 'SIZE', 'GRADE', 'AVAILABILITY', 'SWAP IN', 'SERIAL NO', 'SUPPLIER', 'DATE IN', 'TIME IN', 'DATE OUT'],
@@ -244,7 +246,7 @@ const exportCSV = () => {
 };
 
 const pinDrawer = () => {
-  isDrawerPinned.value = !isDrawerPinned.value; // Toggle the pinned state
+  isDrawerPinned.value = !isDrawerPinned.value;
 };
 
 onMounted(async () => {
@@ -507,6 +509,15 @@ onMounted(async () => {
             <i class="text-xs md:text-sm pi pi-file-plus"></i> Add 
           </button>
         </div>
+      </div>
+
+      <div class="">
+        <h3 class="text-sm md:text-xl text-dark-text dark:text-light-text">
+          Total Inventory Value: 
+          <span class="text-green-500">
+            ${{ totalInventory }}
+          </span>
+        </h3>
       </div>
 
       <div class="flex flex-col h-[320px] md:h-[510px]">

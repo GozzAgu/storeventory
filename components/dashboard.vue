@@ -11,8 +11,10 @@ const stats = computed(() => [
   { title: 'Total Inventory', value: invStore.inventory.length, icon: 'pi pi-shopping-cart', color: 'bg-blue-500' },
   { title: 'Total Receipts', value: receiptStore.receipts.length, icon: 'pi pi-check-circle', color: 'bg-green-500' },
   { title: 'Customers', value: groupedReceiptsByPhone.value.length, icon: 'pi pi-users', color: 'bg-yellow-500' },
-  { title: 'Revenue', value: '$45,000', icon: 'pi pi-dollar', color: 'bg-purple-500' },
+  { title: 'Revenue', value: totalRevenue, icon: 'pi pi-dollar', color: 'bg-purple-500' },
 ]);
+
+const totalRevenue = computed(() => receiptStore.totalRevenue);
 
 const recentActivities = ref<{ description: string; time: any }[]>([]);
 

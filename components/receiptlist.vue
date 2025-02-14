@@ -348,13 +348,15 @@ const downloadReceipt = () => {
   html2canvas(receiptElement, { scale: 2 }).then((canvas) => {
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a4");
-    const imgWidth = 80; // Adjust for receipt size
+    const imgWidth = 80;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
     pdf.save("receipt.pdf");
   });
 };
+
+const totalRevenue = computed(() => store.totalRevenue);
 
 onMounted(async () => {
   if (authStore.currentUser) {
@@ -383,7 +385,6 @@ onMounted(async () => {
         <h3 class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-100">Stoventory Receipt</h3>
       </template>
 
-      <!-- Add null check for itemToDelete -->
       <div v-if="itemToDelete" id="receipt" ref="receipt" class="receipt bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-800 dark:text-gray-100 w-80 mx-auto font-mono border border-gray-300">
         <div class="text-center border-b border-dashed border-gray-400 pb-3">
           <h2 class="font-bold">{{ authStore.currentUser?.adminName }}</h2>
@@ -811,6 +812,13 @@ onMounted(async () => {
           </button>
         </div>
       </div>
+
+      <h3 class="text-sm md:text-xl text-dark-text dark:text-light-text">
+        Total Receipt Value: 
+        <span class="text-green-500">
+          ${{ totalRevenue }}
+        </span>
+      </h3>
   
       <div class="flex flex-col h-[320px] md:h-[510px]">
         <div class="overflow-x-auto table-container">
