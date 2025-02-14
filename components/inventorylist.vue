@@ -250,7 +250,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-8 md:p-6 max-w-full mx-auto">
+  <div class="space-y-8 max-w-full mx-auto">
     <Dialog 
       v-model:visible="deleteDialogVisible" 
       :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
@@ -519,10 +519,10 @@ onMounted(async () => {
                 >
                   CATEGORY
                   <span v-if="showCategoryDropdown">
-                    <i class="text-xs md:text-base pi pi-sort-up-fill"></i>
+                    <i class="text-xs md:text-base pi pi-angle-up"></i>
                   </span>
                   <span v-else>
-                    <i class="text-xs md:text-base pi pi-sort-down-fill"></i>
+                    <i class="text-xs md:text-base pi pi-angle-down"></i>
                   </span>
                 </th>
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 z-10 bg-light-bg dark:bg-darker-bg">PRODUCT</th>

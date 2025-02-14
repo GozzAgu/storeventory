@@ -195,11 +195,11 @@ onBeforeRouteUpdate(async (to, from, next) => {
 </script>
 
 <template>
-  <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
+  <div class="space-y-8 max-w-8xl mx-auto">
     <div>
       <p class="text-sm md:text-2xl font-semibold">Dashboard</p>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
       <div
         v-for="(stat, index) in stats"
         :key="index"

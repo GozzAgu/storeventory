@@ -10,7 +10,7 @@ const addDrawerVisible = ref(false);
 const editDrawerVisible = ref(false);
 const nuxtApp = useNuxtApp()
 const isDarkMode = useState('isDarkMode');
-const editMode = ref(true);
+const editMode = ref(false);
 const toast = useToast();
 const deleteDialogVisible = ref(false);
 const authStore = useAuthStore();
@@ -26,6 +26,10 @@ const newStaff = ref<StaffData>({
   accountType: AccountType.user,
   adminId: '',
 });
+
+const toggleEditMode = () => {
+  editMode.value = !editMode.value;
+}
 
 const toggleAccountType = async (staffId: string) => {
   try {
@@ -225,7 +229,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
+  <div class="space-y-8 max-w-8xl mx-auto">
     <Dialog 
       v-model:visible="deleteDialogVisible" 
       :style="{ width: '350px', backgroundColor: dialogBackgroundColor }"
@@ -280,26 +284,26 @@ onMounted(async () => {
       <p class="text-gray-600 dark:text-gray-400">No staff members added yet.</p>
     </div>
 
-    <div v-else class="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-2">
-      <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-md shadow-sm overflow-hidden md:transform md:transition-all md:hover:scale-105 hover:shadow-md md:hover:translate-y-1">
-        <div class="p-4">
+    <div v-else class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-2 md:gap-3 mt-2">
+      <div v-for="staff in authStore.staffList" :key="staff.id" class="bg-lighter-bg dark:bg-darker-bg rounded-md overflow-hidden md:transform md:transition-all md:hover:scale-105 md:hover:shadow-sm md:hover:translate-y-1">
+        <div class="p-3">
           <div class="border-b border-gray-800 pb-2 flex justify-between">
-            <h3 class="text-[0.8rem] md:text-lg font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
+            <h3 class="text-[0.7rem] md:text-sm font-semibold text-gray-800 dark:text-gray-100">{{ staff.name }}</h3>
             <i
-              :class="staff.accountType === 'User' ? 'pi pi-lock text-gray-600 cursor-pointer' : 'pi pi-lock-open text-green-600 cursor-pointer'"
+              :class="staff.accountType === 'User' ? 'pi pi-lock text-gray-600 cursor-pointer text-xs' : 'pi pi-lock-open text-green-600 cursor-pointer text-xs'"
               @click="toggleAccountType(staff.id)"
             ></i>
           </div>
-          <p class="text-[0.6rem] md:text-sm text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
-          <p class="text-[0.6rem] md:text-sm mt-2 text-gray-700 dark:text-gray-300">Dept: {{ staff.department }}</p>
-          <p class="text-[0.6rem] md:text-sm mt-2 text-gray-700 dark:text-gray-300">Role: {{ staff.accountType }}</p>
+          <p class="text-[0.6rem] md:text-xs text-gray-600 dark:text-gray-400 pt-2">Position: {{ staff.position }}</p>
+          <p class="text-[0.6rem] md:text-xs mt-2 text-gray-700 dark:text-gray-300">Dept: {{ staff.department }}</p>
+          <p class="text-[0.6rem] md:text-xs mt-2 text-gray-700 dark:text-gray-300">Role: {{ staff.accountType }}</p>
 
           <div class="mt-4 flex justify-between items-center">
             <button  @click="viewStaffDetails(staff.id)" class="text-blue-500 hover:text-blue-600">
-              <i class="text-xs md:text-base pi pi-pencil"></i>
+              <i class="text-xs pi pi-pen-to-square"></i>
             </button>
             <button @click="openDeleteDialog(staff)" class="text-red-500 hover:text-red-600">
-              <i class="text-xs md:text-base pi pi-trash"></i>
+              <i class="text-xs pi pi-trash"></i>
             </button>
           </div>
         </div>
@@ -396,7 +400,8 @@ onMounted(async () => {
     <Drawer v-model:visible="editDrawerVisible" position="right" :style="{ backgroundColor: drawerBackgroundColor, width: '400px' }">
       <div class="flex justify-between">
         <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400">Staff Details</h3>
-        <i @click="editMode=false" class="pi pi-pencil cursor-pointer text-gray-600 dark:text-gray-400"></i>
+        <!-- <i v-if="editMode=false" @click="editMode=true" class="pi pi-pencil cursor-pointer text-gray-600 dark:text-gray-400"></i>
+        <i v-else @click="editMode=false" class="pi pi-pencil cursor-pointer text-green-600 dark:text-gray-400"></i> -->
       </div>
       <form @submit.prevent="addStaff" class="space-y-4 mt-4">
         <div>

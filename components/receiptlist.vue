@@ -370,7 +370,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-8 md:p-6 max-w-full mx-auto">
+  <div class="space-y-8 max-w-full mx-auto">
     <Dialog
       v-model:visible="showModal" 
       :style="{ width: '400px', backgroundColor: dialogBackgroundColor }"
@@ -837,8 +837,12 @@ onMounted(async () => {
                   @click="toggleCategoryDropdown"
                 >
                   CATEGORY
-                  <span v-if="showCategoryDropdown">▼</span>
-                  <span v-else>▲</span>
+                  <span v-if="showCategoryDropdown">
+                    <i class="text-xs md:text-base pi pi-angle-up"></i>
+                  </span>
+                  <span v-else>
+                    <i class="text-xs md:text-base pi pi-angle-down"></i>
+                  </span>
                 </th>
                 <!-- <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-light-bg dark:bg-darker-bg">REC ID</th> -->
                 <th class="text-left py-2 px-4 text-dark-text dark:text-light-text whitespace-nowrap sticky left-0 bg-light-bg dark:bg-darker-bg">PRODUCT</th>

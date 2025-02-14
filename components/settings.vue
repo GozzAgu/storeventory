@@ -43,13 +43,13 @@ const saveNotifications = () => {
 </script>
 
 <template>
-  <div class="space-y-8 md:p-6 max-w-8xl mx-auto">
+  <div class="space-y-8 max-w-8xl mx-auto">
     <div class="bg-lighter-bg dark:bg-darker-bg p-6 rounded-md">
       <h2 class="text-sm md:text-2xl font-semibold mb-4">Profile Settings</h2>
       <form @submit.prevent="updateProfile">
         <div class="space-y-4">
           <div>
-            <label for="username" class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+            <label for="username" class="block text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Username <span class="text-red-500 font-thin ml-2">(Username update will be unlocked in next dev phase)</span></label>
             <input
               v-model="username"
               type="text"
