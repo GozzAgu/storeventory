@@ -34,6 +34,13 @@ watch(
   }
 );
 
+const userInitials = computed(() => {
+  if (authStore.currentUser?.adminName) {
+    const names = authStore.currentUser.adminName.split(' ');
+    return names.map((name) => name[0]).join('');
+  }
+});
+
 onMounted(() => {
   if (authStore.currentUser?.id) {
     authStore.fetchCurrentUser(authStore.currentUser.id);
@@ -61,7 +68,10 @@ onMounted(() => {
       class="h-full shadow-lg flex-col lg:block hidden"
     >
       <div class="flex items-center p-4 space-x-4">
-        <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+        <img v-if="authStore.currentUser?.imageUrl" :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+        <div v-else class="min-w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white">
+          {{ userInitials }}
+        </div>
         <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ authStore.currentUser?.adminName }}</span>
       </div>
 
@@ -108,7 +118,10 @@ onMounted(() => {
           </div>
           <nav class="flex flex-col space-y-4 mt-8">
             <div class="flex items-center mb-4 space-x-4">
-              <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+              <img v-if="authStore.currentUser?.imageUrl" :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+              <div v-else class="min-w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white">
+                {{ userInitials }}
+              </div>
               <span v-if="isSidenavOpen" class="text-lg font-semibold">{{ authStore.currentUser?.adminName }}</span>
             </div>
             <NuxtLink
@@ -156,7 +169,10 @@ onMounted(() => {
             :class="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
             @click="isDarkMode = !isDarkMode"
           ></i>
-          <img :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+          <img v-if="authStore.currentUser?.imageUrl" :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+          <div v-else class="min-w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white">
+            {{ userInitials }}
+          </div>
         </div>
       </div>
 
