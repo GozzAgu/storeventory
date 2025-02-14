@@ -488,12 +488,12 @@ onMounted(async () => {
         <div class="flex justify-between items-center mb-4">
         </div>
         <div class="flex gap-x-2">
-          <button 
-            @click="exportCSV"
+          <!-- <button 
+            @click="importCSV"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
             class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
             <i class="text-xs md:text-sm pi pi-file-import"></i> Import
-          </button>
+          </button> -->
           <button 
             @click="exportCSV"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
