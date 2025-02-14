@@ -12,7 +12,6 @@ export const useReceiptStore = defineStore('receipts', {
       const total = state.receipts.reduce((total, receipt) => {
         return total + parseFloat(receipt.amount);
       }, 0);
-  
       return total.toLocaleString('en-US', {
         style: 'decimal',
         minimumFractionDigits: 2,

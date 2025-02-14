@@ -12,7 +12,6 @@ export const useInvStore = defineStore('inventory', {
       const total = state.inventory.reduce((total, inventory) => {
         return total + parseFloat(inventory.price);
       }, 0);
-  
       return total.toLocaleString('en-US', {
         style: 'decimal',
         minimumFractionDigits: 2,
