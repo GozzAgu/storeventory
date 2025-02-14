@@ -212,12 +212,22 @@ const openCreateInventoryDrawer = () => {
 
 const exportCSV = () => {
   const csvContent = [
-    ['INV ID', 'Customer', 'Total', 'Issued On'],
+    ['CATEGORY', 'PRODUCT', 'DESCRIPTION', 'PRICE', 'COLOR', 'SIZE', 'GRADE', 'AVAILABILITY', 'SWAP IN', 'SERIAL NO', 'SUPPLIER', 'DATE IN', 'TIME IN', 'DATE OUT'],
     ...store.inventory.map(inv => [
+      inv.category.name,
       inv.name,
       inv.description,
-      inv.category,
       inv.price,
+      inv.color,
+      inv.size,
+      inv.grade.name,
+      inv.isSold ? 'Sold' : 'Available',
+      inv.swapIn.name,
+      inv.serialNumber,
+      inv.supplier,
+      formatDateTime(inv.dateIn).date,
+      formatDateTime(inv.dateIn).time,
+      inv.dateOut,
     ])
   ]
     .map(row => row.join(','))
