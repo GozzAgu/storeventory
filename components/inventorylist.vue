@@ -293,7 +293,7 @@ onMounted(async () => {
         </h3>
         <i 
           @click="pinDrawer" 
-          class="pi pi-window-maximize text-cyan-600 text-lg md:text-3xl"
+          class="pi pi-thumbtack text-cyan-600 text-sm md:text-xl cursor-pointer"
           :class="{ 'text-orange-500': isDrawerPinned }"
         ></i>
       </div>
@@ -459,8 +459,9 @@ onMounted(async () => {
             class="py-1 px-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
           >
-            <i v-if="isAddingInventory" class="pi pi-spin pi-spinner"></i>
-            {{ isAddingInventory ? 'Adding...' : 'Add Inventory' }}
+            <i v-if="isAddingInventory" class="pi pi-spin pi-spinner pi-save"></i>
+            <i v-else class="pi pi-save"></i>
+            {{ isAddingInventory ? 'Saving...' : 'Save' }}
           </button>
         </div>
       </form>
@@ -481,13 +482,19 @@ onMounted(async () => {
             @click="exportCSV"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
             class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
-            <i class="text-xs md:text-sm pi pi-external-link"></i> Export
+            <i class="text-xs md:text-sm pi pi-file-import"></i> Import
+          </button>
+          <button 
+            @click="exportCSV"
+            style="background-color: #4c5270; color: white; border-color: #4c5270;"
+            class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
+            <i class="text-xs md:text-sm pi pi-file-export"></i> Export
           </button>
           <button 
             @click="openCreateInventoryDrawer"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
             class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
-            <i class="text-xs md:text-sm pi pi-plus"></i> Add 
+            <i class="text-xs md:text-sm pi pi-file-plus"></i> Add 
           </button>
         </div>
       </div>

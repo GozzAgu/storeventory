@@ -784,8 +784,9 @@ onMounted(async () => {
             class="py-1 px-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300 text-xs md:text-sm"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
           >
-            <i v-if="isAddingReceipt" class="pi pi-spin pi-spinner"></i>
-            {{ isAddingReceipt ? 'Adding...' : 'Add Receipt' }}
+            <i v-if="isAddingReceipt" class="pi pi-spin pi-spinner pi-save"></i>
+            <i v-else class="pi pi-save"></i>
+            {{ isAddingInventory ? 'Saving...' : 'Save' }}
           </button>
         </div>
       </form>
@@ -806,7 +807,7 @@ onMounted(async () => {
             @click="openCreateReceiptDrawer"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
             class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300">
-            <i class="text-xs md:text-sm pi pi-plus"></i> Generate Receipt 
+            <i class="text-xs md:text-sm pi pi-file-plus"></i> Generate Receipt 
           </button>
         </div>
       </div>

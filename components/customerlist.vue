@@ -64,8 +64,8 @@ onMounted(async () => {
       <div v-for="(group, index) in groupedReceiptsByPhone" :key="index" class="bg-lighter-bg dark:bg-darker-bg p-4 rounded-md mb-2">
         <div class="flex justify-between items-center cursor-pointer" @click="toggleCustomerDetails(index)">
           <h3 class="text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-100">
-              <i v-if="isCustomerOpen(index)" class="text-xs pi pi-angle-down"></i>
-              <i v-else class="text-xs pi pi-angle-up"></i>
+              <i v-if="isCustomerOpen(index)" class="text-xs pi pi-angle-up"></i>
+              <i v-else class="text-xs pi pi-angle-down"></i>
             {{ group.receipts[0].customer }}
           </h3>
           <span class="text-xs md:text-sm text-gray-600 dark:text-gray-400">

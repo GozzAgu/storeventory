@@ -273,6 +273,7 @@ onMounted(async () => {
         class="text-xs md:text-base p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
         style="background-color: #4c5270; color: white; border-color: #4c5270;"
       >
+        <i class="pi pi-user-plus"></i>
         Create Staff
       </button>
     </div>
@@ -391,7 +392,9 @@ onMounted(async () => {
             class="p-2 rounded-md shadow-md mb-4 flex items-center justify-center gap-2 transition-all duration-300"
             style="background-color: #4c5270; color: white; border-color: #4c5270;"
           >
-            {{ isAddingStaff ? 'Adding...' : 'Add Staff' }}
+            <i v-if="isAddingStaff" class="pi pi-spin pi-spinner pi-save"></i>
+            <i v-else class="pi pi-save"></i>
+            {{ isAddingInventory ? 'Saving...' : 'Save' }}
           </button>
         </div>
       </form>
