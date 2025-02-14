@@ -7,6 +7,7 @@ const isDarkMode = useState('isDarkMode');
 const isSidenavOpen = ref(true);
 const route = useRoute();
 const mobileNavOpen = ref(false);
+const isDropdownOpen = ref(false);
 
 const menuItems = [
   { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard/home' },
@@ -41,15 +42,31 @@ const userInitials = computed(() => {
   }
 });
 
+// const logout = async () => {
+//   await authStore.logout();
+// };
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const closeDropdown = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (!target.closest('.avatar-dropdown')) {
+    isDropdownOpen.value = false;
+  }
+};
+
 onMounted(() => {
   if (authStore.currentUser?.id) {
     authStore.fetchCurrentUser(authStore.currentUser.id);
   }
+  document.addEventListener('click', closeDropdown);
 });
 
-onMounted(() => {
-  
-})
+onUnmounted(() => {
+  document.removeEventListener('click', closeDropdown);
+});
 </script>
 
 <template>
@@ -169,9 +186,30 @@ onMounted(() => {
             :class="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'"
             @click="isDarkMode = !isDarkMode"
           ></i>
-          <img v-if="authStore.currentUser?.imageUrl" :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
-          <div v-else class="min-w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white">
-            {{ userInitials }}
+
+          <div class="relative avatar-dropdown">
+            <div @click="toggleDropdown" class="cursor-pointer">
+              <img v-if="authStore.currentUser?.imageUrl" :src="authStore.currentUser?.imageUrl" alt="Profile" class="min-w-10 h-10 rounded-full object-cover aspect-square" />
+              <div v-else class="min-w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white">
+                {{ userInitials }}
+              </div>
+            </div>
+
+            <div
+              v-if="isDropdownOpen"
+              class="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-bg rounded-md shadow-lg z-50"
+            >
+              <div class="py-1 px-4">
+                <p class="text-xs">{{ authStore.currentUser?.adminName }}</p>
+                <p class="text-xs">{{ authStore.currentUser?.email}}</p>
+                <button
+                  @click="logout"
+                  class="w-full text-left py-2 text-xs text-gray-700 dark:text-light-text hover:bg-gray-100 dark:hover:bg-darker-bg"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -201,5 +239,33 @@ onMounted(() => {
 }
 .mobile-nav-enter, .mobile-nav-leave-to{
   transform: translateX(-100%);
+}
+
+/* Dropdown Styles */
+.avatar-dropdown {
+  position: relative;
+}
+
+.avatar-dropdown .dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  background-color: white;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
+
+.avatar-dropdown .dropdown-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.avatar-dropdown .dropdown-menu button:hover {
+  background-color: #f3f4f6;
 }
 </style>
