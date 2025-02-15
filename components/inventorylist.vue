@@ -512,9 +512,9 @@ onMounted(async () => {
       </div>
 
       <div class="">
-        <h3 class="text-sm md:text-xl text-dark-text dark:text-light-text">
+        <h3 class="text-sm md:text-base text-dark-text dark:text-light-text">
           Total Inventory Value: 
-          <span class="text-green-500">
+          <span class="text-green-500 font-black">
             ${{ totalInventory }}
           </span>
         </h3>
@@ -629,9 +629,10 @@ onMounted(async () => {
           @click="currentPage > 1 && (currentPage--)" :disabled="currentPage === 1"
           class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
         >
+          <i class="text-xs md:text-sm pi pi-angle-left"></i>
           Prev
         </button>
-        <span class="text-gray-600 dark:text-gray-300 text-xs md:text-sm">
+        <span v-if="currentPage > 1" class="text-gray-600 dark:text-gray-300 text-xs md:text-sm">
           Page {{ currentPage }} of {{ Math.ceil(store.inventory.length / itemsPerPage) }}
         </span>
         <button 
@@ -641,6 +642,7 @@ onMounted(async () => {
           class="text-xs md:text-sm p-2 rounded-md hover:scale-105 flex items-center justify-center gap-2 transition-all duration-300"
         >
           Next
+          <i class="text-xs md:text-sm pi pi-angle-right"></i>
         </button>
       </div>
     </div>
