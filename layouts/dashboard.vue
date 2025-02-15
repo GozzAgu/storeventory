@@ -9,16 +9,23 @@ const route = useRoute();
 const mobileNavOpen = ref(false);
 const isDropdownOpen = ref(false);
 
-const menuItems = [
-  { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard/home' },
-  { label: 'Inventory', icon: 'pi pi-file', route: '/dashboard/inventorylist' },
-  { label: 'Receipts', icon: 'pi pi-receipt', route: '/dashboard/receiptlist' },
-  { label: 'Customers', icon: 'pi pi-users', route: '/dashboard/customerlist' },
-  { label: 'Staff', icon: 'pi pi-user-edit', route: '/dashboard/stafflist' },
-  { label: 'Settings', icon: 'pi pi-cog', route: '/dashboard/settings' },
-  { label: 'Help', icon: 'pi pi-question-circle', route: '/dashboard/help' },
-  { label: 'Logout', icon: 'pi pi-sign-out' },
-];
+const menuItems = computed(() => {
+  const items = [
+    { label: 'Dashboard', icon: 'pi pi-home', route: '/dashboard/home' },
+    { label: 'Inventory', icon: 'pi pi-file', route: '/dashboard/inventorylist' },
+    { label: 'Receipts', icon: 'pi pi-receipt', route: '/dashboard/receiptlist' },
+    { label: 'Customers', icon: 'pi pi-users', route: '/dashboard/customerlist' },
+    { label: 'Settings', icon: 'pi pi-cog', route: '/dashboard/settings' },
+    { label: 'Help', icon: 'pi pi-question-circle', route: '/dashboard/help' },
+    { label: 'Logout', icon: 'pi pi-sign-out' },
+  ];
+
+  if (authStore.currentUser?.accountType === 'SuperAdmin') {
+    items.splice(4, 0, { label: 'Staff', icon: 'pi pi-user-edit', route: '/dashboard/stafflist' });
+  }
+
+  return items;
+});
 
 const isActive = (routeToCheck: string) => {
   return route.path === routeToCheck;

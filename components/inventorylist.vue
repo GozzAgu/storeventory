@@ -613,7 +613,7 @@ onMounted(async () => {
                     <i class="text-xs md:text-base pi pi-copy"></i>
                   </button>
             
-                  <button @click="openDeleteDialog(inventory)" class="ml-2 text-red-500 hover:text-red-600">
+                  <button v-if="authStore.currentUser.accountType === 'SuperAdmin'" @click="openDeleteDialog(inventory)" class="ml-2 text-red-500 hover:text-red-600">
                     <i class="text-xs md:text-base pi pi-trash"></i>
                   </button>
                 </td>
