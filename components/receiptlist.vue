@@ -932,7 +932,7 @@ onMounted(async () => {
           <i class="text-xs md:text-sm pi pi-angle-left"></i>
           Prev
         </button>
-        <span v-if="currentPage > 1" class="text-gray-600 dark:text-gray-300 text-xs md:text-sm">
+        <span v-if="currentPage > 0" class="text-gray-600 dark:text-gray-300 text-xs md:text-sm">
           Page {{ currentPage }} of {{ Math.ceil(store.receipts.length / itemsPerPage) }}
         </span>
         <button 
