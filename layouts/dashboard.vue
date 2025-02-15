@@ -60,6 +60,7 @@ const closeDropdown = (event: MouseEvent) => {
 onMounted(() => {
   if (authStore.currentUser?.id) {
     authStore.fetchCurrentUser(authStore.currentUser.id);
+    authStore.loadCurrentUserFromStorage();
   }
   document.addEventListener('click', closeDropdown);
 });

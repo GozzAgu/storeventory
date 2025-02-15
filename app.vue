@@ -16,6 +16,7 @@ const store = useAuthStore()
 
 onMounted(() => {
 	store.loadCurrentUserFromStorage()
+  store.authenticated()
   const savedDarkMode = localStorage.getItem('isDarkMode') === 'true';
   isDarkMode.value = savedDarkMode;
 
