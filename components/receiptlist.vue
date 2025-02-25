@@ -798,7 +798,7 @@ onMounted(async () => {
       <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">View and manage all receipts</p>
     </div>
 
-    <div class="bg-lighter-bg dark:bg-darker-bg px-3 py-6 md:p-6 rounded-md h-[470px] md:h-[680px]">
+    <div class="bg-lighter-bg dark:bg-darker-bg px-3 py-6 md:p-6 rounded-md h-[470px] md:h-[710px]">
       <div class="flex justify-between items-center pb-4">
         <h3 class="text-sm md:text-2xl text-dark-text dark:text-light-text">Items ({{ store.receipts.length }})</h3>
         <div class="flex justify-between items-center mb-4">
@@ -820,7 +820,7 @@ onMounted(async () => {
         </span>
       </h3>
   
-      <div class="flex flex-col h-[320px] md:h-[510px]">
+      <div class="flex flex-col h-[320px] md:h-[540px]">
         <div class="overflow-x-auto table-container">
           <div v-if="loading" class="flex items-center justify-center h-[320px] md:h-[510px]">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-700"></div>
